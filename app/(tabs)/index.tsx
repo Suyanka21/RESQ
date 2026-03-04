@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -16,6 +16,9 @@ import SOSReactorButton from '@/components/SOSReactorButton';
 import ServiceChip from '@/components/ServiceChip';
 import MapPlaceholder from '@/components/MapPlaceholder';
 import MetalSurface from '@/components/MetalSurface';
+import { ServiceCardSkeleton } from '@/components/ui/LoadingStates';
+import { GenericError } from '@/components/ui/ErrorStates';
+import { OfflineQueueBanner } from '@/components/ui/OfflineExperience';
 
 const SERVICES: { id: ServiceType; label: string; icon: typeof Wrench; color: string }[] = [
   { id: 'towing', label: 'Towing', icon: Wrench, color: colors.service.towing },
@@ -30,6 +33,15 @@ export default function DashboardScreen() {
   const router = useRouter();
   const setServiceType = useRequestStore((s) => s.setServiceType);
   const [activeService, setActiveService] = useState<ServiceType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [offlineQueueCount, setOfflineQueueCount] = useState(0);
+
+  useEffect(() => {
+    // Simulate loading services data
+    const timer = setTimeout(() => setIsLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleDispatch = () => {
     if (activeService) {
@@ -74,27 +86,39 @@ export default function DashboardScreen() {
             <SOSReactorButton onPress={handleSOS} />
           </View>
 
+          <OfflineQueueBanner queuedCount={offlineQueueCount} onPress={() => {}} />
+
           <View style={styles.panelContent}>
             <Text style={styles.sectionTitle}>Deploy Assistance</Text>
             <Text style={styles.sectionSubtitle}>Select required service unit</Text>
 
             {/* Service Grid */}
-            <View style={styles.serviceGrid}>
-              {SERVICES.map((service) => {
-                const Icon = service.icon;
-                return (
-                  <View key={service.id} style={styles.serviceCell}>
-                    <ServiceChip
-                      label={service.label}
-                      icon={<Icon size={24} color={activeService === service.id ? colors.text.primary : colors.text.secondary} />}
-                      color={service.color}
-                      isActive={activeService === service.id}
-                      onPress={() => setActiveService(activeService === service.id ? null : service.id)}
-                    />
-                  </View>
-                );
-              })}
-            </View>
+            {isLoading ? (
+              <ServiceCardSkeleton count={6} />
+            ) : error ? (
+              <GenericError
+                title="Failed to load services"
+                message={error}
+                onRetry={() => { setError(null); setIsLoading(true); setTimeout(() => setIsLoading(false), 1200); }}
+              />
+            ) : (
+              <View style={styles.serviceGrid}>
+                {SERVICES.map((service) => {
+                  const Icon = service.icon;
+                  return (
+                    <View key={service.id} style={styles.serviceCell}>
+                      <ServiceChip
+                        label={service.label}
+                        icon={<Icon size={24} color={activeService === service.id ? colors.text.primary : colors.text.secondary} />}
+                        color={service.color}
+                        isActive={activeService === service.id}
+                        onPress={() => setActiveService(activeService === service.id ? null : service.id)}
+                      />
+                    </View>
+                  );
+                })}
+              </View>
+            )}
 
             {/* Dispatch Button */}
             {activeService && (

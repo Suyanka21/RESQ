@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { Clock, MapPin } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
-import EmptyState from '@/components/EmptyState';
+import { HistoryItemSkeleton } from '@/components/ui/LoadingStates';
+import { EmptyHistory } from '@/components/ui/EmptyStates';
+import { GenericError } from '@/components/ui/ErrorStates';
 
 const MOCK_HISTORY = [
   { id: '1', service: 'Towing', date: '2026-01-28', price: 5000, status: 'completed', location: 'Westlands, Nairobi' },
@@ -12,8 +14,39 @@ const MOCK_HISTORY = [
 ];
 
 export default function HistoryScreen() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Service History</Text>
+        </View>
+        <View style={{ paddingHorizontal: spacing.lg }}>
+          <HistoryItemSkeleton />
+        </View>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <GenericError
+        title="Failed to load history"
+        message={error}
+        onRetry={() => { setError(null); setIsLoading(true); setTimeout(() => setIsLoading(false), 1000); }}
+      />
+    );
+  }
+
   if (MOCK_HISTORY.length === 0) {
-    return <EmptyState title="No History" message="Your service history will appear here." />;
+    return <EmptyHistory />;
   }
 
   return (

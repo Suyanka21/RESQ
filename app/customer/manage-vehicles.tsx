@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Car, Plus, Trash2 } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
-import EmptyState from '@/components/EmptyState';
+import { EmptyVehicles } from '@/components/ui/EmptyStates';
 
 const MOCK_VEHICLES = [
   { id: '1', make: 'Toyota', model: 'Corolla', year: '2020', plate: 'KDA 123A', color: 'White' },
@@ -37,11 +37,7 @@ export default function ManageVehiclesScreen() {
       </View>
 
       {MOCK_VEHICLES.length === 0 ? (
-        <EmptyState
-          title="No Vehicles"
-          message="Add your vehicles to speed up service requests."
-          icon={<Car size={48} color={colors.text.tertiary} />}
-        />
+        <EmptyVehicles onAddVehicle={() => {}} />
       ) : (
         <FlatList
           data={MOCK_VEHICLES}

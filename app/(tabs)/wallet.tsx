@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { CreditCard, Plus, ArrowDownLeft, ArrowUpRight } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { TransactionSkeleton } from '@/components/ui/LoadingStates';
+import { EmptyWallet } from '@/components/ui/EmptyStates';
+import { GenericError } from '@/components/ui/ErrorStates';
 
 const MOCK_TRANSACTIONS = [
   { id: '1', type: 'payment', description: 'Towing Service', amount: -5000, date: 'Jan 28' },
@@ -11,6 +14,48 @@ const MOCK_TRANSACTIONS = [
 ];
 
 export default function WalletScreen() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Wallet</Text>
+        </View>
+        <View style={{ paddingHorizontal: spacing.lg }}>
+          <TransactionSkeleton />
+        </View>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <GenericError
+        title="Failed to load wallet"
+        message={error}
+        onRetry={() => { setError(null); setIsLoading(true); setTimeout(() => setIsLoading(false), 1000); }}
+      />
+    );
+  }
+
+  if (MOCK_TRANSACTIONS.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Wallet</Text>
+        </View>
+        <EmptyWallet />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>

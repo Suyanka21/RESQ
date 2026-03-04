@@ -1,22 +1,47 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Phone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MapPlaceholder from '@/components/MapPlaceholder';
 import ProviderCard from '@/components/ProviderCard';
+import { MapSkeleton } from '@/components/ui/LoadingStates';
+import { GenericError } from '@/components/ui/ErrorStates';
 
 export default function LiveTrackingScreen() {
   const router = useRouter();
   const etaAnim = useRef(new Animated.Value(8)).current;
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Simulate map/provider data loading
+    const loadTimer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(loadTimer);
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
     // Simulate ETA countdown
     const timer = setTimeout(() => {
       router.replace('/customer/provider-arriving');
     }, 6000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isLoading]);
+
+  if (isLoading) {
+    return <MapSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <GenericError
+        title="Tracking unavailable"
+        message={error}
+        onRetry={() => { setError(null); setIsLoading(true); setTimeout(() => setIsLoading(false), 1500); }}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
