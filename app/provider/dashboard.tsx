@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MapPin, Clock, DollarSign, User, History, Headphones } from 'lucide-react-native';
@@ -11,14 +11,27 @@ export default function ProviderDashboardScreen() {
   const router = useRouter();
   const { isAvailable, setAvailable, earnings, rating, completedJobs } = useProviderStore();
   const [showDispatch, setShowDispatch] = useState(false);
+  const dispatchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up setTimeout on unmount to prevent memory leak
+  useEffect(() => {
+    return () => {
+      if (dispatchTimerRef.current) {
+        clearTimeout(dispatchTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleToggle = (value: boolean) => {
     setAvailable(value);
     if (value) {
       // Simulate incoming job after toggling on
-      setTimeout(() => {
+      dispatchTimerRef.current = setTimeout(() => {
         router.push('/provider/dispatch');
       }, 3000);
+    } else if (dispatchTimerRef.current) {
+      clearTimeout(dispatchTimerRef.current);
+      dispatchTimerRef.current = null;
     }
   };
 

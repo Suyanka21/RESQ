@@ -37,12 +37,15 @@ export default function SearchingScreen() {
         ])
       );
 
-    createPulse(pulse1, 0).start();
-    createPulse(pulse2, 600).start();
-    createPulse(pulse3, 1200).start();
+    const pulseAnim1 = createPulse(pulse1, 0);
+    const pulseAnim2 = createPulse(pulse2, 600);
+    const pulseAnim3 = createPulse(pulse3, 1200);
+    pulseAnim1.start();
+    pulseAnim2.start();
+    pulseAnim3.start();
 
     // Shimmer animation
-    Animated.loop(
+    const shimmerAnim = Animated.loop(
       Animated.sequence([
         Animated.timing(shimmer, {
           toValue: 1,
@@ -55,14 +58,21 @@ export default function SearchingScreen() {
           useNativeDriver: true,
         }),
       ])
-    ).start();
+    );
+    shimmerAnim.start();
 
     // Simulate finding a provider
     const timer = setTimeout(() => {
       router.replace('/customer/live-tracking');
     }, 4000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      pulseAnim1.stop();
+      pulseAnim2.stop();
+      pulseAnim3.stop();
+      shimmerAnim.stop();
+    };
   }, []);
 
   const renderPulse = (anim: Animated.Value, size: number) => (

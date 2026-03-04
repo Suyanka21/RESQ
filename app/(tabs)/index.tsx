@@ -40,7 +40,7 @@ export default function DashboardScreen() {
 
   const handleSOS = () => {
     setServiceType('medical');
-    router.push('/customer/searching');
+    router.push('/customer/request-form');
   };
 
   return (
