@@ -1,17 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MapPin, Clock, DollarSign, Navigation } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useProviderStore } from '@/stores/providerStore';
 import MetalSurface from '@/components/MetalSurface';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 export default function DispatchScreen() {
   const router = useRouter();
+  const { height: SCREEN_HEIGHT } = useWindowDimensions();
   const { setJobStatus, setCurrentJob } = useProviderStore();
-  const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const slideAnim = useRef(new Animated.Value(1000)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -60,12 +59,8 @@ export default function DispatchScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Semi-transparent backdrop */}
-      <TouchableOpacity
-        style={styles.backdrop}
-        activeOpacity={1}
-        onPress={handleDecline}
-      />
+      {/* Semi-transparent backdrop — no onPress to prevent accidental decline */}
+      <View style={styles.backdrop} />
 
       <Animated.View style={[styles.overlay, { transform: [{ translateY: slideAnim }] }]}>
         {/* Incoming Call Style Header */}
@@ -148,7 +143,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: borderRadius.xxl,
     padding: spacing.lg,
     paddingBottom: spacing.xxl,
-    minHeight: SCREEN_HEIGHT * 0.4,
+    minHeight: '40%',
   },
   incomingHeader: {
     alignItems: 'center',

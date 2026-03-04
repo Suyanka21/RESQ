@@ -1,4 +1,13 @@
 import { create } from 'zustand';
+import {
+  updateProviderLocation as fbUpdateLocation,
+  setProviderAvailability as fbSetAvailability,
+  acceptRequest as fbAcceptRequest,
+  updateRequestStatus as fbUpdateStatus,
+  subscribeToIncomingRequests,
+  getProviderHistory,
+  getProviderProfile,
+} from '../services/provider.service';
 
 export type JobStatus =
   | 'idle'
@@ -41,6 +50,15 @@ interface ProviderState {
   setCurrentJob: (job: Job | null) => void;
   updateEarnings: (earnings: Partial<EarningsSummary>) => void;
   reset: () => void;
+
+  // Firebase-powered actions
+  goOnline: (providerId: string) => Promise<{ success: boolean; error?: string }>;
+  goOffline: (providerId: string) => Promise<{ success: boolean; error?: string }>;
+  sendLocation: (providerId: string, location: { latitude: number; longitude: number; heading?: number }) => Promise<void>;
+  acceptJob: (requestId: string, providerId: string, eta: number) => Promise<{ success: boolean; error?: string }>;
+  updateJobStatus: (requestId: string, status: string) => Promise<{ success: boolean; error?: string }>;
+  listenForJobs: (providerId: string) => () => void;
+  loadProfile: (providerId: string) => Promise<void>;
 }
 
 const defaultEarnings: EarningsSummary = {
@@ -51,7 +69,7 @@ const defaultEarnings: EarningsSummary = {
   jobsCompleted: 0,
 };
 
-export const useProviderStore = create<ProviderState>((set) => ({
+export const useProviderStore = create<ProviderState>((set, get) => ({
   isAvailable: false,
   jobStatus: 'idle',
   currentJob: null,
@@ -71,4 +89,92 @@ export const useProviderStore = create<ProviderState>((set) => ({
       currentJob: null,
       earnings: defaultEarnings,
     }),
+
+  // Firebase: Go online
+  goOnline: async (providerId) => {
+    const result = await fbSetAvailability(providerId, true);
+    if (result.success) set({ isAvailable: true });
+    return result;
+  },
+
+  // Firebase: Go offline
+  goOffline: async (providerId) => {
+    const result = await fbSetAvailability(providerId, false);
+    if (result.success) set({ isAvailable: false });
+    return result;
+  },
+
+  // Firebase: Send live location
+  sendLocation: async (providerId, location) => {
+    await fbUpdateLocation(providerId, location);
+  },
+
+  // Firebase: Accept incoming job
+  acceptJob: async (requestId, providerId, eta) => {
+    const result = await fbAcceptRequest(requestId, providerId, eta);
+    if (result.success) {
+      set({ jobStatus: 'accepted' });
+    }
+    return result;
+  },
+
+  // Firebase: Update job status
+  updateJobStatus: async (requestId, status) => {
+    const result = await fbUpdateStatus(requestId, status);
+    if (result.success) {
+      const statusMap: Record<string, JobStatus> = {
+        enroute: 'navigating',
+        arrived: 'arrived',
+        inProgress: 'in_service',
+        completed: 'completed',
+      };
+      const mappedStatus = statusMap[status];
+      if (mappedStatus) set({ jobStatus: mappedStatus });
+    }
+    return result;
+  },
+
+  // Firebase: Listen for incoming job requests
+  listenForJobs: (providerId) => {
+    return subscribeToIncomingRequests(providerId, (requests) => {
+      if (requests.length > 0 && get().jobStatus === 'idle') {
+        const incoming = requests[0];
+        set({
+          jobStatus: 'incoming',
+          currentJob: {
+            id: incoming.id,
+            customerName: 'Customer',
+            customerPhone: '',
+            serviceType: incoming.serviceType,
+            location: {
+              latitude: incoming.customerLocation?.coordinates?.latitude || 0,
+              longitude: incoming.customerLocation?.coordinates?.longitude || 0,
+              address: incoming.customerLocation?.address || '',
+            },
+            price: incoming.pricing?.total || 0,
+            distance: 0,
+            eta: 0,
+          },
+        });
+      }
+    });
+  },
+
+  // Firebase: Load provider profile
+  loadProfile: async (providerId) => {
+    const profile = await getProviderProfile(providerId);
+    if (profile) {
+      set({
+        rating: profile.rating,
+        completedJobs: profile.totalServices,
+        earnings: {
+          today: profile.earnings?.today || 0,
+          week: profile.earnings?.thisWeek || 0,
+          month: profile.earnings?.thisMonth || 0,
+          total: profile.earnings?.allTime || 0,
+          jobsCompleted: profile.totalServices,
+        },
+      });
+    }
+  },
 }));

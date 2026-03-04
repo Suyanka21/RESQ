@@ -41,7 +41,7 @@ export default function SplashScreen() {
     );
     pulseLoop.start();
 
-    setTimeout(() => {
+    const textTimer = setTimeout(() => {
       Animated.timing(textFade, {
         toValue: 1,
         duration: 800,
@@ -49,12 +49,13 @@ export default function SplashScreen() {
       }).start();
     }, 1000);
 
-    const timer = setTimeout(() => {
+    const navTimer = setTimeout(() => {
       router.replace('/auth/landing');
     }, 3000);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(textTimer);
+      clearTimeout(navTimer);
       pulseLoop.stop();
     };
   }, []);

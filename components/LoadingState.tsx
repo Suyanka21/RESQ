@@ -32,9 +32,11 @@ export default function LoadingState({
 
   return (
     <View style={styles.container} accessibilityLabel={message} accessibilityRole="progressbar">
-      <Animated.View style={[styles.dot, { opacity: pulseAnim }]} />
-      <Animated.View style={[styles.dot, styles.dotMiddle, { opacity: pulseAnim }]} />
-      <Animated.View style={[styles.dot, { opacity: pulseAnim }]} />
+      <View style={styles.dotRow}>
+        <Animated.View style={[styles.dot, { opacity: pulseAnim }]} />
+        <Animated.View style={[styles.dot, styles.dotMiddle, { opacity: pulseAnim }]} />
+        <Animated.View style={[styles.dot, { opacity: pulseAnim }]} />
+      </View>
       <Text style={styles.text}>{message}</Text>
     </View>
   );
@@ -47,6 +49,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
+  },
+  dotRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   dot: {
     width: 8,

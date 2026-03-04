@@ -1,11 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   PanResponder,
   Animated,
-  Dimensions,
 } from 'react-native';
 import { colors, typography, spacing, borderRadius } from '@/theme';
 
@@ -22,31 +21,40 @@ export default function SwipeConfirm({
 }: SwipeConfirmProps) {
   const translateX = useRef(new Animated.Value(0)).current;
   const [trackWidth, setTrackWidth] = useState(0);
-  const maxSlide = trackWidth - THUMB_SIZE - spacing.xs * 2;
+  const maxSlideRef = useRef(0);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        const newX = Math.max(0, Math.min(gestureState.dx, maxSlide));
-        translateX.setValue(newX);
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dx > maxSlide * 0.8) {
-          Animated.spring(translateX, {
-            toValue: maxSlide,
-            useNativeDriver: true,
-          }).start(() => onConfirm());
-        } else {
-          Animated.spring(translateX, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    })
-  ).current;
+  // Keep maxSlide ref in sync with trackWidth so PanResponder always reads fresh value
+  maxSlideRef.current = trackWidth - THUMB_SIZE - spacing.xs * 2;
+
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderMove: (_, gestureState) => {
+          const maxSlide = maxSlideRef.current;
+          if (maxSlide <= 0) return;
+          const newX = Math.max(0, Math.min(gestureState.dx, maxSlide));
+          translateX.setValue(newX);
+        },
+        onPanResponderRelease: (_, gestureState) => {
+          const maxSlide = maxSlideRef.current;
+          if (maxSlide <= 0) return;
+          if (gestureState.dx > maxSlide * 0.8) {
+            Animated.spring(translateX, {
+              toValue: maxSlide,
+              useNativeDriver: true,
+            }).start(() => onConfirm());
+          } else {
+            Animated.spring(translateX, {
+              toValue: 0,
+              useNativeDriver: true,
+            }).start();
+          }
+        },
+      }),
+    [onConfirm, translateX]
+  );
 
   return (
     <View

@@ -36,8 +36,9 @@ export default function ProviderOTPScreen() {
     if (text && index < OTP_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus();
     }
-    if (newOtp.every((d) => d !== '')) {
-      handleVerify();
+    // Guard: only auto-submit when all 6 digits are filled
+    if (newOtp.every((d) => d !== '') && newOtp.join('').length === OTP_LENGTH) {
+      handleVerify(newOtp);
     }
   };
 
@@ -47,7 +48,9 @@ export default function ProviderOTPScreen() {
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = (digits?: string[]) => {
+    const code = (digits || otp).join('');
+    if (code.length !== OTP_LENGTH) return;
     setIsProvider(true);
     login({ id: 'p1', name: 'James Mwangi', phone: '712345678' });
     router.replace('/provider/dashboard');

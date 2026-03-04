@@ -38,9 +38,9 @@ export default function OTPScreen() {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Auto-submit when all digits entered
+    // Auto-submit when all digits entered — use newOtp (fresh) not stale otp
     if (newOtp.every((d) => d !== '') && newOtp.join('').length === OTP_LENGTH) {
-      handleVerify();
+      handleVerify(newOtp);
     }
   };
 
@@ -50,7 +50,9 @@ export default function OTPScreen() {
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = (digits?: string[]) => {
+    const code = (digits || otp).join('');
+    if (code.length !== OTP_LENGTH) return;
     login({
       id: '1',
       name: 'John Doe',
