@@ -86,7 +86,7 @@ export default function DashboardScreen() {
             <SOSReactorButton onPress={handleSOS} />
           </View>
 
-          <OfflineQueueBanner queuedCount={offlineQueueCount} onPress={() => router.push('/customer/offline')} />
+          <OfflineQueueBanner queuedCount={offlineQueueCount} onPress={() => {}} />
 
           <View style={styles.panelContent}>
             <Text style={styles.sectionTitle}>Deploy Assistance</Text>
@@ -102,23 +102,23 @@ export default function DashboardScreen() {
                 onRetry={() => { setError(null); setIsLoading(true); setTimeout(() => setIsLoading(false), 1200); }}
               />
             ) : (
-            <View style={styles.serviceGrid}>
-              {SERVICES.map((service) => {
-                const Icon = service.icon;
-                return (
-                  <View key={service.id} style={styles.serviceCell}>
-                    <ServiceChip
-                      label={service.label}
-                      icon={<Icon size={24} color={activeService === service.id ? colors.text.primary : colors.text.secondary} />}
-                      color={service.color}
-                      isActive={activeService === service.id}
-                      onPress={() => setActiveService(activeService === service.id ? null : service.id)}
-                    />
-                  </View>
-                );
-              })}
-            </View>
-            )
+              <View style={styles.serviceGrid}>
+                {SERVICES.map((service) => {
+                  const Icon = service.icon;
+                  return (
+                    <View key={service.id} style={styles.serviceCell}>
+                      <ServiceChip
+                        label={service.label}
+                        icon={<Icon size={24} color={activeService === service.id ? colors.text.primary : colors.text.secondary} />}
+                        color={service.color}
+                        isActive={activeService === service.id}
+                        onPress={() => setActiveService(activeService === service.id ? null : service.id)}
+                      />
+                    </View>
+                  );
+                })}
+              </View>
+            )}
 
             {/* Dispatch Button */}
             {activeService && (
