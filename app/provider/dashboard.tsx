@@ -1,20 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
-import { MapPin, Clock, DollarSign, User, History, Headphones } from 'lucide-react-native';
-import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
+import { MapPin, DollarSign, User, History, Headphones } from 'lucide-react-native';
+import { colors, typography, spacing, shadows } from '@/theme';
 import { useProviderStore } from '@/stores/providerStore';
 import MapPlaceholder from '@/components/MapPlaceholder';
 import MetalSurface from '@/components/MetalSurface';
-import { GenericError } from '@/components/ui/ErrorStates';
 import { OfflineQueueBanner } from '@/components/ui/OfflineExperience';
 
 export default function ProviderDashboardScreen() {
   const router = useRouter();
   const { isAvailable, setAvailable, earnings, rating, completedJobs } = useProviderStore();
-  const [showDispatch, setShowDispatch] = useState(false);
-  const [offlineQueueCount, setOfflineQueueCount] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const [offlineQueueCount] = useState(0);
   const dispatchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Clean up setTimeout on unmount to prevent memory leak

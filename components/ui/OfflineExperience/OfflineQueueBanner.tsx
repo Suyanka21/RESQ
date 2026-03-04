@@ -12,6 +12,7 @@ export default function OfflineQueueBanner({ queuedCount, onPress }: OfflineQueu
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
+    if (queuedCount === 0) return;
     const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -28,7 +29,7 @@ export default function OfflineQueueBanner({ queuedCount, onPress }: OfflineQueu
     );
     animation.start();
     return () => animation.stop();
-  }, [pulseAnim]);
+  }, [pulseAnim, queuedCount]);
 
   if (queuedCount === 0) return null;
 
