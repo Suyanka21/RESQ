@@ -10,14 +10,27 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft, Smartphone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { PaymentError } from '@/components/ui/ErrorStates';
 
 export default function PaymentScreen() {
   const router = useRouter();
   const [pin, setPin] = useState('');
+  const [paymentError, setPaymentError] = useState<'timeout' | 'insufficient' | 'cancelled' | 'generic' | null>(null);
 
   const handlePay = () => {
+    // In production, this would handle M-Pesa STK push and potential errors
     router.replace('/customer/rating');
   };
+
+  if (paymentError) {
+    return (
+      <PaymentError
+        errorType={paymentError}
+        onRetry={() => setPaymentError(null)}
+        onContactSupport={() => router.push('/customer/support')}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>

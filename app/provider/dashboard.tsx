@@ -6,11 +6,15 @@ import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useProviderStore } from '@/stores/providerStore';
 import MapPlaceholder from '@/components/MapPlaceholder';
 import MetalSurface from '@/components/MetalSurface';
+import { GenericError } from '@/components/ui/ErrorStates';
+import { OfflineQueueBanner } from '@/components/ui/OfflineExperience';
 
 export default function ProviderDashboardScreen() {
   const router = useRouter();
   const { isAvailable, setAvailable, earnings, rating, completedJobs } = useProviderStore();
   const [showDispatch, setShowDispatch] = useState(false);
+  const [offlineQueueCount, setOfflineQueueCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const dispatchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Clean up setTimeout on unmount to prevent memory leak
@@ -68,6 +72,8 @@ export default function ProviderDashboardScreen() {
 
       {/* Bottom Panel */}
       <View style={styles.bottomPanel}>
+        <OfflineQueueBanner queuedCount={offlineQueueCount} onPress={() => {}} />
+
         {/* Availability Toggle */}
         <MetalSurface variant="glass" radius="xxl" style={styles.panel}>
           <View style={styles.toggleRow}>

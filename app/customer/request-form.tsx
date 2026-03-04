@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, MapPin } from 'lucide-react-native';
@@ -13,6 +14,8 @@ import { colors, typography, spacing, borderRadius, shadows, PRICES } from '@/th
 import { useRequestStore } from '@/stores/requestStore';
 import SwipeConfirm from '@/components/SwipeConfirm';
 import MetalSurface from '@/components/MetalSurface';
+import { ServiceUnavailable } from '@/components/ui/ErrorStates';
+import { PermissionError } from '@/components/ui/ErrorStates';
 
 const SERVICE_PRICES: Record<string, number> = {
   towing: PRICES.TOWING_BASE,
@@ -28,14 +31,34 @@ export default function RequestFormScreen() {
   const { serviceType, setDescription, setPrice } = useRequestStore();
   const [description, setDesc] = useState('');
   const [location, setLocation] = useState('Current Location - Westlands, Nairobi');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serviceError, setServiceError] = useState<'unavailable' | 'permission' | null>(null);
 
   const price = SERVICE_PRICES[serviceType || 'towing'] || PRICES.TOWING_BASE;
 
   const handleConfirm = () => {
+    setIsSubmitting(true);
     setDescription(description);
     setPrice(price);
-    router.push('/customer/searching');
+    // In production, this would submit to Firebase and handle errors
+    setTimeout(() => {
+      setIsSubmitting(false);
+      router.push('/customer/searching');
+    }, 500);
   };
+
+  if (serviceError === 'unavailable') {
+    return (
+      <ServiceUnavailable
+        onTryAnother={() => { setServiceError(null); router.back(); }}
+        onGoBack={() => router.back()}
+      />
+    );
+  }
+
+  if (serviceError === 'permission') {
+    return <PermissionError permissionType="location" />;
+  }
 
   return (
     <View style={styles.container}>

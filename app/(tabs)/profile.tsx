@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -14,6 +14,8 @@ import {
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { useAuthStore } from '@/stores/authStore';
+import { ProfileSkeleton } from '@/components/ui/LoadingStates';
+import { GenericError } from '@/components/ui/ErrorStates';
 
 const MENU_ITEMS = [
   { id: 'vehicles', label: 'My Vehicles', icon: Car, route: '/customer/manage-vehicles' },
@@ -26,11 +28,32 @@ const MENU_ITEMS = [
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleLogout = () => {
     logout();
     router.replace('/auth/landing');
   };
+
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <GenericError
+        title="Failed to load profile"
+        message={error}
+        onRetry={() => { setError(null); setIsLoading(true); setTimeout(() => setIsLoading(false), 800); }}
+      />
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>

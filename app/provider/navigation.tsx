@@ -1,13 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Navigation as NavIcon, Phone, MapPin } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MapPlaceholder from '@/components/MapPlaceholder';
 import MetalSurface from '@/components/MetalSurface';
+import { MapSkeleton } from '@/components/ui/LoadingStates';
+import { GenericError } from '@/components/ui/ErrorStates';
 
 export default function ProviderNavigationScreen() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <MapSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <GenericError
+        title="Navigation unavailable"
+        message={error}
+        onRetry={() => { setError(null); setIsLoading(true); setTimeout(() => setIsLoading(false), 1200); }}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>

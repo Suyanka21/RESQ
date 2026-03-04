@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, MapPin, Clock, CheckCircle } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
-import EmptyState from '@/components/EmptyState';
+import { HistoryItemSkeleton } from '@/components/ui/LoadingStates';
+import { EmptyHistory } from '@/components/ui/EmptyStates';
+import { GenericError } from '@/components/ui/ErrorStates';
 
 const MOCK_JOBS = [
   { id: '1', service: 'Towing', customer: 'John D.', date: 'Jan 30, 2026', amount: 4250, location: 'Westlands', duration: '45 min' },
@@ -15,6 +17,45 @@ const MOCK_JOBS = [
 
 export default function ProviderHistoryScreen() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+            accessibilityLabel="Go back"
+            accessibilityRole="button"
+          >
+            <ArrowLeft size={20} color={colors.text.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Job History</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={{ paddingHorizontal: spacing.lg }}>
+          <HistoryItemSkeleton />
+        </View>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <GenericError
+        title="Failed to load job history"
+        message={error}
+        onRetry={() => { setError(null); setIsLoading(true); setTimeout(() => setIsLoading(false), 1000); }}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -32,7 +73,7 @@ export default function ProviderHistoryScreen() {
       </View>
 
       {MOCK_JOBS.length === 0 ? (
-        <EmptyState title="No Jobs Yet" message="Your completed jobs will appear here." />
+        <EmptyHistory />
       ) : (
         <FlatList
           data={MOCK_JOBS}

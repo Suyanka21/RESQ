@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Shield, Star, Award, Settings, HelpCircle, LogOut, ChevronRight } from 'lucide-react-native';
@@ -6,6 +6,8 @@ import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { useAuthStore } from '@/stores/authStore';
 import { useProviderStore } from '@/stores/providerStore';
+import { ProfileSkeleton } from '@/components/ui/LoadingStates';
+import { GenericError } from '@/components/ui/ErrorStates';
 
 const MENU_ITEMS = [
   { id: 'settings', label: 'Account Settings', icon: Settings },
@@ -16,11 +18,32 @@ export default function ProviderProfileScreen() {
   const router = useRouter();
   const { logout } = useAuthStore();
   const { rating, completedJobs } = useProviderStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleLogout = () => {
     logout();
     router.replace('/auth/landing');
   };
+
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <GenericError
+        title="Failed to load profile"
+        message={error}
+        onRetry={() => { setError(null); setIsLoading(true); setTimeout(() => setIsLoading(false), 800); }}
+      />
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
