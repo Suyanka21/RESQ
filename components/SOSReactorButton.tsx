@@ -4,6 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -14,6 +15,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { colors, shadows, typography, spacing } from '@/theme';
+import { useReducedMotion, TOUCH_TARGET } from '@/utils/accessibility';
 
 interface SOSReactorButtonProps {
   onPress: () => void;
@@ -22,12 +24,20 @@ interface SOSReactorButtonProps {
 
 function SOSReactorButton({
   onPress,
-  size = 72,
+  size = TOUCH_TARGET.EMERGENCY, // Minimum 80pt for emergency context (was 72)
 }: SOSReactorButtonProps) {
+  const prefersReducedMotion = useReducedMotion();
   const pulseScale = useSharedValue(1);
   const glowOpacity = useSharedValue(0.3);
 
   useEffect(() => {
+    // Respect prefers-reduced-motion - skip animations if user prefers reduced motion
+    if (prefersReducedMotion) {
+      pulseScale.value = 1;
+      glowOpacity.value = 0.6; // Static glow for visibility without animation
+      return;
+    }
+
     pulseScale.value = withRepeat(
       withSequence(
         withTiming(1.08, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
@@ -45,7 +55,7 @@ function SOSReactorButton({
       -1,
       false
     );
-  }, [pulseScale, glowOpacity]);
+  }, [pulseScale, glowOpacity, prefersReducedMotion]);
 
   const pulseAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulseScale.value }],
@@ -64,9 +74,9 @@ function SOSReactorButton({
         <TouchableOpacity
           onPress={onPress}
           activeOpacity={0.7}
-          accessibilityLabel="Emergency SOS button"
+          accessibilityLabel="Emergency SOS - Request immediate help"
           accessibilityRole="button"
-          accessibilityHint="Double tap to trigger emergency SOS"
+          accessibilityHint="Double tap to trigger emergency medical dispatch"
           style={[
             styles.button,
             {
@@ -127,8 +137,8 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: spacing.sm,
-    fontSize: 10,
-    fontWeight: typography.fontWeight.medium,
+    fontSize: 12, // Increased from 10 for readability - WCAG AA
+    fontWeight: typography.fontWeight.bold,
     color: colors.text.tertiary,
     letterSpacing: 3,
     textTransform: 'uppercase',

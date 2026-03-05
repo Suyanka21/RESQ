@@ -5,6 +5,7 @@ import { ArrowLeft, Car, Plus, Trash2 } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { EmptyVehicles } from '@/components/ui/EmptyStates';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 const MOCK_VEHICLES = [
   { id: '1', make: 'Toyota', model: 'Corolla', year: '2020', plate: 'KDA 123A', color: 'White' },
@@ -21,16 +22,20 @@ export default function ManageVehiclesScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Vehicles</Text>
+        <Text style={styles.headerTitle} accessibilityRole="header">My Vehicles</Text>
         <TouchableOpacity
           style={styles.addButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Add vehicle"
           accessibilityRole="button"
+          accessibilityHint="Opens form to add a new vehicle"
         >
           <Plus size={20} color={colors.voltage} />
         </TouchableOpacity>
@@ -56,8 +61,10 @@ export default function ManageVehiclesScreen() {
                 </View>
                 <TouchableOpacity
                   style={styles.deleteButton}
+                  hitSlop={TOUCH_TARGET.HIT_SLOP}
                   accessibilityLabel={`Remove ${item.make} ${item.model}`}
                   accessibilityRole="button"
+                  accessibilityHint="Removes this vehicle from your account"
                 >
                   <Trash2 size={18} color={colors.status.error} />
                 </TouchableOpacity>

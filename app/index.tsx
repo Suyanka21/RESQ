@@ -1,17 +1,33 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, AccessibilityInfo } from 'react-native';
 import { useRouter } from 'expo-router';
 import Svg, { Polygon, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { colors, typography, spacing } from '@/theme';
+import { useReducedMotion } from '@/utils/accessibility';
 
 export default function SplashScreen() {
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const textFade = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    // Respect prefers-reduced-motion: skip animations, show content immediately
+    if (prefersReducedMotion) {
+      fadeAnim.setValue(1);
+      scaleAnim.setValue(1);
+      textFade.setValue(1);
+      pulseAnim.setValue(0.5); // Static glow
+
+      const navTimer = setTimeout(() => {
+        router.replace('/auth/landing');
+      }, 1500); // Shorter wait without animations
+
+      return () => clearTimeout(navTimer);
+    }
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -58,7 +74,7 @@ export default function SplashScreen() {
       clearTimeout(navTimer);
       pulseLoop.stop();
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <View style={styles.container}>

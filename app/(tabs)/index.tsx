@@ -19,6 +19,7 @@ import MetalSurface from '@/components/MetalSurface';
 import { ServiceCardSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
 import { OfflineQueueBanner } from '@/components/ui/OfflineExperience';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 const SERVICES: { id: ServiceType; label: string; icon: typeof Wrench; color: string }[] = [
   { id: 'towing', label: 'Towing', icon: Wrench, color: colors.service.towing },
@@ -71,8 +72,10 @@ export default function DashboardScreen() {
         <TouchableOpacity
           onPress={() => router.push('/customer/support')}
           style={styles.supportButton}
-          accessibilityLabel="Support"
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
+          accessibilityLabel="Contact support"
           accessibilityRole="button"
+          accessibilityHint="Opens support and help options"
         >
           <Headphones size={20} color={colors.text.primary} />
         </TouchableOpacity>

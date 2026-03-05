@@ -4,9 +4,14 @@ import { useRouter } from 'expo-router';
 import { WifiOff, RefreshCw } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { announceForAccessibility } from '@/utils/accessibility';
 
 export default function OfflineScreen() {
   const router = useRouter();
+
+  React.useEffect(() => {
+    announceForAccessibility('You are offline. Your request has been queued.');
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -15,7 +20,7 @@ export default function OfflineScreen() {
           <WifiOff size={48} color={colors.text.tertiary} />
         </View>
 
-        <Text style={styles.title}>No Connection</Text>
+        <Text style={styles.title} accessibilityRole="header">No Connection</Text>
         <Text style={styles.subtitle}>
           You appear to be offline. Your request has been queued and will be
           sent when connectivity is restored.
@@ -35,6 +40,7 @@ export default function OfflineScreen() {
           style={styles.retryButton}
           accessibilityLabel="Retry connection"
           accessibilityRole="button"
+          accessibilityHint="Attempts to reconnect and return to dashboard"
         >
           <RefreshCw size={18} color={colors.text.onBrand} />
           <Text style={styles.retryText}>Retry Connection</Text>

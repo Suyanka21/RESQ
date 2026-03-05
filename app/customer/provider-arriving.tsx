@@ -12,28 +12,35 @@ import { useRouter } from 'expo-router';
 import { MapPin, Phone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import ProviderCard from '@/components/ProviderCard';
+import { useReducedMotion, announceForAccessibility } from '@/utils/accessibility';
 
 export default function ProviderArrivingScreen() {
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
   const pulseScale = useSharedValue(1);
 
   useEffect(() => {
-    // High-frequency pulse using reanimated
-    pulseScale.value = withRepeat(
-      withSequence(
-        withTiming(1.1, { duration: 400, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 400, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
+    // Announce to screen readers
+    announceForAccessibility('Your provider is arriving at your location');
+
+    // Respect prefers-reduced-motion
+    if (!prefersReducedMotion) {
+      pulseScale.value = withRepeat(
+        withSequence(
+          withTiming(1.1, { duration: 400, easing: Easing.inOut(Easing.ease) }),
+          withTiming(1, { duration: 400, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1,
+        false
+      );
+    }
 
     // Auto-advance
     const timer = setTimeout(() => {
       router.replace('/customer/service-in-progress');
     }, 5000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [prefersReducedMotion]);
 
   const pulseAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulseScale.value }],

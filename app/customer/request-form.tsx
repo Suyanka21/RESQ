@@ -16,6 +16,7 @@ import SwipeConfirm from '@/components/SwipeConfirm';
 import MetalSurface from '@/components/MetalSurface';
 import { ServiceUnavailable } from '@/components/ui/ErrorStates';
 import { PermissionError } from '@/components/ui/ErrorStates';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 const SERVICE_PRICES: Record<string, number> = {
   towing: PRICES.TOWING_BASE,
@@ -67,8 +68,10 @@ export default function RequestFormScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to service selection"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
@@ -91,9 +94,9 @@ export default function RequestFormScreen() {
           </View>
         </MetalSurface>
 
-        {/* Description */}
+        {/* Description - Form Accessibility */}
         <MetalSurface variant="sunken" radius="lg" style={styles.inputCard}>
-          <Text style={styles.inputLabel}>DESCRIPTION (OPTIONAL)</Text>
+          <Text style={styles.inputLabel} accessibilityRole="text">DESCRIPTION (OPTIONAL)</Text>
           <TextInput
             style={styles.textInput}
             value={description}
@@ -102,7 +105,8 @@ export default function RequestFormScreen() {
             placeholderTextColor={colors.text.disabled}
             multiline
             numberOfLines={3}
-            accessibilityLabel="Description input"
+            accessibilityLabel="Description, optional"
+            accessibilityHint="Describe the issue you need help with"
           />
         </MetalSurface>
 

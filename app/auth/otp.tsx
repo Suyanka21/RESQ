@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
+import { TOUCH_TARGET, announceForAccessibility } from '@/utils/accessibility';
 
 const OTP_LENGTH = 6;
 
@@ -73,8 +74,10 @@ export default function OTPScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to phone number entry"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
