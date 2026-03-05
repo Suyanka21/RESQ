@@ -2,6 +2,8 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from '@/theme';
 
+// Performance: Expo Router already lazy loads screens via file-based routing.
+
 export default function RootLayout() {
   return (
     <>
@@ -11,6 +13,7 @@ export default function RootLayout() {
           headerShown: false,
           contentStyle: { backgroundColor: colors.background.primary },
           animation: 'fade',
+          animationDuration: 200,
         }}
       >
         <Stack.Screen name="index" />

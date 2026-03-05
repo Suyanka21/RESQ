@@ -1,41 +1,46 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, useWindowDimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withRepeat,
+  withSequence,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { MapPin, Clock, DollarSign, Navigation } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useProviderStore } from '@/stores/providerStore';
-import MetalSurface from '@/components/MetalSurface';
 
 export default function DispatchScreen() {
   const router = useRouter();
   const { height: SCREEN_HEIGHT } = useWindowDimensions();
   const { setJobStatus, setCurrentJob } = useProviderStore();
-  const slideAnim = useRef(new Animated.Value(1000)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const slideY = useSharedValue(1000);
+  const pulseScale = useSharedValue(1);
 
   useEffect(() => {
-    Animated.spring(slideAnim, {
-      toValue: 0,
-      friction: 8,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
+    slideY.value = withSpring(0, { damping: 8, stiffness: 40 });
 
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.05,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
+    pulseScale.value = withRepeat(
+      withSequence(
+        withTiming(1.05, { duration: 500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
   }, []);
+
+  const slideAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: slideY.value }],
+  }));
+
+  const pulseAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
 
   const handleAccept = () => {
     setJobStatus('accepted');
@@ -62,7 +67,7 @@ export default function DispatchScreen() {
       {/* Semi-transparent backdrop — no onPress to prevent accidental decline */}
       <View style={styles.backdrop} />
 
-      <Animated.View style={[styles.overlay, { transform: [{ translateY: slideAnim }] }]}>
+      <Animated.View style={[styles.overlay, slideAnimStyle]}>
         {/* Incoming Call Style Header */}
         <View style={styles.incomingHeader}>
           <Text style={styles.incomingLabel}>INCOMING JOB</Text>
@@ -103,7 +108,7 @@ export default function DispatchScreen() {
 
         {/* Actions */}
         <View style={styles.actions}>
-          <Animated.View style={{ transform: [{ scale: pulseAnim }], flex: 1 }}>
+          <Animated.View style={[{ flex: 1 }, pulseAnimStyle]}>
             <TouchableOpacity
               onPress={handleAccept}
               style={styles.acceptButton}

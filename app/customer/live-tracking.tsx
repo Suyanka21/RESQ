@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Phone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
@@ -10,7 +10,6 @@ import { GenericError } from '@/components/ui/ErrorStates';
 
 export default function LiveTrackingScreen() {
   const router = useRouter();
-  const etaAnim = useRef(new Animated.Value(8)).current;
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

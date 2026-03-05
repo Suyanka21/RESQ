@@ -1,12 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Animated,
-  AccessibilityInfo,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { colors, shadows, typography, spacing } from '@/theme';
 
 interface SOSReactorButtonProps {
@@ -14,59 +20,47 @@ interface SOSReactorButtonProps {
   size?: number;
 }
 
-export default function SOSReactorButton({
+function SOSReactorButton({
   onPress,
   size = 72,
 }: SOSReactorButtonProps) {
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const glowAnim = useRef(new Animated.Value(0.3)).current;
+  const pulseScale = useSharedValue(1);
+  const glowOpacity = useSharedValue(0.3);
 
   useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.08,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
+    pulseScale.value = withRepeat(
+      withSequence(
+        withTiming(1.08, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
     );
 
-    const glow = Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowAnim, {
-          toValue: 0.8,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(glowAnim, {
-          toValue: 0.3,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
+    glowOpacity.value = withRepeat(
+      withSequence(
+        withTiming(0.8, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.3, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
     );
+  }, [pulseScale, glowOpacity]);
 
-    pulse.start();
-    glow.start();
+  const pulseAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
 
-    return () => {
-      pulse.stop();
-      glow.stop();
-    };
-  }, [pulseAnim, glowAnim]);
+  const glowAnimStyle = useAnimatedStyle(() => ({
+    opacity: glowOpacity.value,
+  }));
 
   return (
     <View style={styles.well}>
-      <Animated.View style={[styles.glowRing, { opacity: glowAnim }]}>
+      <Animated.View style={[styles.glowRing, glowAnimStyle]}>
         <View style={[styles.glowInner, { width: size + 20, height: size + 20 }]} />
       </Animated.View>
-      <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+      <Animated.View style={pulseAnimStyle}>
         <TouchableOpacity
           onPress={onPress}
           activeOpacity={0.7}
@@ -90,6 +84,8 @@ export default function SOSReactorButton({
     </View>
   );
 }
+
+export default React.memo(SOSReactorButton);
 
 const styles = StyleSheet.create({
   well: {

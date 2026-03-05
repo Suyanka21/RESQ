@@ -1,5 +1,15 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  withDelay,
+  Easing,
+  interpolate,
+} from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius } from '@/theme';
@@ -9,57 +19,39 @@ export default function SearchingScreen() {
   const router = useRouter();
   const serviceType = useRequestStore((s) => s.serviceType);
 
-  const pulse1 = useRef(new Animated.Value(0)).current;
-  const pulse2 = useRef(new Animated.Value(0)).current;
-  const pulse3 = useRef(new Animated.Value(0)).current;
-
-  // Skeleton shimmer
-  const shimmer = useRef(new Animated.Value(0)).current;
+  const pulse1 = useSharedValue(0);
+  const pulse2 = useSharedValue(0);
+  const pulse3 = useSharedValue(0);
+  const shimmer = useSharedValue(0);
 
   useEffect(() => {
-    // Pulsing circles
-    const createPulse = (anim: Animated.Value, delay: number) =>
-      Animated.loop(
-        Animated.sequence([
-          Animated.delay(delay),
-          Animated.parallel([
-            Animated.timing(anim, {
-              toValue: 1,
-              duration: 2000,
-              useNativeDriver: true,
-            }),
-          ]),
-          Animated.timing(anim, {
-            toValue: 0,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-        ])
+    // Pulsing circles with staggered delays
+    const createPulseAnim = (delay: number) =>
+      withRepeat(
+        withDelay(
+          delay,
+          withSequence(
+            withTiming(1, { duration: 2000, easing: Easing.linear }),
+            withTiming(0, { duration: 0 })
+          )
+        ),
+        -1,
+        false
       );
 
-    const pulseAnim1 = createPulse(pulse1, 0);
-    const pulseAnim2 = createPulse(pulse2, 600);
-    const pulseAnim3 = createPulse(pulse3, 1200);
-    pulseAnim1.start();
-    pulseAnim2.start();
-    pulseAnim3.start();
+    pulse1.value = createPulseAnim(0);
+    pulse2.value = createPulseAnim(600);
+    pulse3.value = createPulseAnim(1200);
 
     // Shimmer animation
-    const shimmerAnim = Animated.loop(
-      Animated.sequence([
-        Animated.timing(shimmer, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shimmer, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
+    shimmer.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
     );
-    shimmerAnim.start();
 
     // Simulate finding a provider
     const timer = setTimeout(() => {
@@ -68,43 +60,36 @@ export default function SearchingScreen() {
 
     return () => {
       clearTimeout(timer);
-      pulseAnim1.stop();
-      pulseAnim2.stop();
-      pulseAnim3.stop();
-      shimmerAnim.stop();
     };
   }, []);
 
-  const renderPulse = (anim: Animated.Value, size: number) => (
-    <Animated.View
-      style={[
-        styles.pulse,
-        {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          opacity: Animated.subtract(1, anim),
-          transform: [
-            {
-              scale: anim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.5, 2],
-              }),
-            },
-          ],
-        },
-      ]}
-    />
-  );
+  const pulseStyle1 = useAnimatedStyle(() => ({
+    opacity: 1 - pulse1.value,
+    transform: [{ scale: interpolate(pulse1.value, [0, 1], [0.5, 2]) }],
+  }));
+
+  const pulseStyle2 = useAnimatedStyle(() => ({
+    opacity: 1 - pulse2.value,
+    transform: [{ scale: interpolate(pulse2.value, [0, 1], [0.5, 2]) }],
+  }));
+
+  const pulseStyle3 = useAnimatedStyle(() => ({
+    opacity: 1 - pulse3.value,
+    transform: [{ scale: interpolate(pulse3.value, [0, 1], [0.5, 2]) }],
+  }));
+
+  const shimmerStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(shimmer.value, [0, 1], [0.3, 0.6]),
+  }));
 
   return (
     <View style={styles.container}>
       <View style={styles.center}>
         {/* Pulsing rings */}
         <View style={styles.pulseContainer}>
-          {renderPulse(pulse1, 200)}
-          {renderPulse(pulse2, 200)}
-          {renderPulse(pulse3, 200)}
+          <Animated.View style={[styles.pulse, styles.pulseSize, pulseStyle1]} />
+          <Animated.View style={[styles.pulse, styles.pulseSize, pulseStyle2]} />
+          <Animated.View style={[styles.pulse, styles.pulseSize, pulseStyle3]} />
           <View style={styles.searchIcon}>
             <Search size={32} color={colors.voltage} />
           </View>
@@ -120,7 +105,7 @@ export default function SearchingScreen() {
           {[1, 2, 3].map((i) => (
             <Animated.View
               key={i}
-              style={[styles.skeleton, { opacity: shimmer.interpolate({ inputRange: [0, 1], outputRange: [0.3, 0.6] }) }]}
+              style={[styles.skeleton, shimmerStyle]}
             >
               <View style={styles.skeletonAvatar} />
               <View style={styles.skeletonLines}>
@@ -157,6 +142,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderWidth: 2,
     borderColor: colors.voltage,
+  },
+  pulseSize: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
   },
   searchIcon: {
     width: 64,
