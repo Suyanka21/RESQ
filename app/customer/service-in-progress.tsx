@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { CheckCircle, Circle, Clock } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { announceForAccessibility } from '@/utils/accessibility';
 
 const STEPS = [
   { id: 1, label: 'Provider Arrived', sublabel: 'On site' },
@@ -18,8 +19,11 @@ export default function ServiceInProgressScreen() {
 
   const handleAdvance = () => {
     if (currentStep < STEPS.length) {
+      const nextStep = STEPS[currentStep]; // currentStep is 0-indexed after increment
       setCurrentStep(currentStep + 1);
+      announceForAccessibility(`Step ${currentStep + 1} of ${STEPS.length}: ${nextStep?.label || 'Complete'}`);
     } else {
+      announceForAccessibility('Service complete');
       router.replace('/customer/service-completion');
     }
   };
@@ -27,10 +31,10 @@ export default function ServiceInProgressScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Service In Progress</Text>
+        <Text style={styles.title} accessibilityRole="header">Service In Progress</Text>
         <View style={styles.timerPill}>
           <Clock size={14} color={colors.voltage} />
-          <Text style={styles.timerText}>12:34</Text>
+          <Text style={styles.timerText} accessibilityLabel="Elapsed time: 12 minutes 34 seconds" accessibilityRole="text">12:34</Text>
         </View>
       </View>
 
@@ -103,8 +107,9 @@ export default function ServiceInProgressScreen() {
         <TouchableOpacity
           onPress={handleAdvance}
           style={styles.nextButton}
-          accessibilityLabel={currentStep < STEPS.length ? 'Next step' : 'Complete service'}
+          accessibilityLabel={currentStep < STEPS.length ? `Advance to step ${currentStep + 1} of ${STEPS.length}` : 'Complete service'}
           accessibilityRole="button"
+          accessibilityHint={currentStep < STEPS.length ? 'Moves to the next service step' : 'Marks the service as complete'}
         >
           <Text style={styles.nextText}>
             {currentStep < STEPS.length ? 'Next Step' : 'Complete'}

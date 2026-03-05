@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { MapPin, DollarSign, User, History, Headphones } from 'lucide-react-native';
 import { colors, typography, spacing, shadows } from '@/theme';
 import { useProviderStore } from '@/stores/providerStore';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 import MapPlaceholder from '@/components/MapPlaceholder';
 import MetalSurface from '@/components/MetalSurface';
 import { OfflineQueueBanner } from '@/components/ui/OfflineExperience';
@@ -59,8 +60,10 @@ export default function ProviderDashboardScreen() {
           <TouchableOpacity
             onPress={() => router.push('/provider/support')}
             style={styles.actionButton}
+            hitSlop={TOUCH_TARGET.HIT_SLOP}
             accessibilityLabel="Support"
             accessibilityRole="button"
+            accessibilityHint="Opens support page"
           >
             <Headphones size={20} color={colors.text.primary} />
           </TouchableOpacity>
@@ -82,8 +85,9 @@ export default function ProviderDashboardScreen() {
               onValueChange={handleToggle}
               trackColor={{ false: colors.background.border, true: colors.voltage }}
               thumbColor={colors.text.primary}
-              accessibilityLabel="Availability toggle"
+              accessibilityLabel={isAvailable ? 'Go offline' : 'Go online to accept jobs'}
               accessibilityRole="switch"
+              accessibilityHint="Toggles your availability to receive job requests"
             />
           </View>
 
@@ -108,7 +112,7 @@ export default function ProviderDashboardScreen() {
 
         {/* Bottom Nav */}
         <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem} accessibilityLabel="Dashboard">
+          <TouchableOpacity style={styles.navItem} accessibilityLabel="Dashboard" accessibilityRole="button" accessibilityState={{ selected: true }}>
             <MapPin size={20} color={colors.voltage} />
             <Text style={[styles.navText, { color: colors.voltage }]}>Home</Text>
           </TouchableOpacity>
@@ -116,6 +120,8 @@ export default function ProviderDashboardScreen() {
             onPress={() => router.push('/provider/earnings')}
             style={styles.navItem}
             accessibilityLabel="Earnings"
+            accessibilityRole="button"
+            accessibilityHint="View your earnings"
           >
             <DollarSign size={20} color={colors.text.tertiary} />
             <Text style={styles.navText}>Earnings</Text>
@@ -124,6 +130,8 @@ export default function ProviderDashboardScreen() {
             onPress={() => router.push('/provider/history')}
             style={styles.navItem}
             accessibilityLabel="History"
+            accessibilityRole="button"
+            accessibilityHint="View job history"
           >
             <History size={20} color={colors.text.tertiary} />
             <Text style={styles.navText}>History</Text>
@@ -132,6 +140,8 @@ export default function ProviderDashboardScreen() {
             onPress={() => router.push('/provider/profile')}
             style={styles.navItem}
             accessibilityLabel="Profile"
+            accessibilityRole="button"
+            accessibilityHint="View your profile"
           >
             <User size={20} color={colors.text.tertiary} />
             <Text style={styles.navText}>Profile</Text>

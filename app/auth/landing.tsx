@@ -5,6 +5,7 @@ import { ShieldAlert } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
 import MetalSurface from '@/components/MetalSurface';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 export default function LandingScreen() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function LandingScreen() {
             style={styles.primaryButton}
             accessibilityLabel="Get Started"
             accessibilityRole="button"
+            accessibilityHint="Create a new ResQ account"
           >
             <Text style={styles.primaryButtonText}>Get Started</Text>
           </TouchableOpacity>
@@ -45,8 +47,10 @@ export default function LandingScreen() {
               setAuthMode('signin');
               router.push('/auth/phone');
             }}
+            style={styles.signInButton}
             accessibilityLabel="Sign In"
             accessibilityRole="button"
+            accessibilityHint="Sign in to your existing account"
           >
             <Text style={styles.signInText}>
               Already have an account? Sign In
@@ -55,8 +59,10 @@ export default function LandingScreen() {
 
           <TouchableOpacity
             onPress={() => router.push('/provider/login')}
+            style={styles.partnerButton}
             accessibilityLabel="Partner Login"
             accessibilityRole="button"
+            accessibilityHint="Sign in as a service provider"
           >
             <Text style={styles.providerText}>Partner Login</Text>
           </TouchableOpacity>
@@ -139,10 +145,22 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 4,
   },
+  signInButton: {
+    minHeight: TOUCH_TARGET.MIN,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+  },
   signInText: {
     color: colors.voltage,
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
+  },
+  partnerButton: {
+    minHeight: TOUCH_TARGET.MIN,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
   },
   providerText: {
     color: colors.text.secondary,

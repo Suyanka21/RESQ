@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft, Smartphone, CreditCard } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 export default function AddPaymentScreen() {
   const router = useRouter();
@@ -17,12 +18,14 @@ export default function AddPaymentScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add Payment</Text>
+        <Text style={styles.headerTitle} accessibilityRole="header">Add Payment</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -65,6 +68,7 @@ export default function AddPaymentScreen() {
                 placeholderTextColor={colors.text.disabled}
                 keyboardType="phone-pad"
                 accessibilityLabel="M-Pesa phone number"
+                accessibilityHint="Enter your M-Pesa registered phone number"
               />
             </View>
           </MetalSurface>
@@ -78,6 +82,7 @@ export default function AddPaymentScreen() {
                 placeholderTextColor={colors.text.disabled}
                 keyboardType="number-pad"
                 accessibilityLabel="Card number"
+                accessibilityHint="Enter your 16-digit card number"
               />
             </MetalSurface>
             <View style={styles.cardRow}>
@@ -89,6 +94,7 @@ export default function AddPaymentScreen() {
                   placeholderTextColor={colors.text.disabled}
                   keyboardType="number-pad"
                   accessibilityLabel="Expiry date"
+                  accessibilityHint="Enter card expiry in MM/YY format"
                 />
               </MetalSurface>
               <MetalSurface variant="sunken" radius="lg" style={[styles.inputCard, { flex: 1 }]}>
@@ -99,7 +105,8 @@ export default function AddPaymentScreen() {
                   placeholderTextColor={colors.text.disabled}
                   keyboardType="number-pad"
                   secureTextEntry
-                  accessibilityLabel="CVV"
+                  accessibilityLabel="CVV, 3 digits required"
+                  accessibilityHint="Enter the 3-digit security code from the back of your card"
                 />
               </MetalSurface>
             </View>

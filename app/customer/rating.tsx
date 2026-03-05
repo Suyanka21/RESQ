@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Star } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 const TAGS = ['Professional', 'On Time', 'Friendly', 'Clean Work', 'Fair Price'];
 
@@ -29,14 +30,18 @@ export default function RatingScreen() {
         <Text style={styles.title}>Rate Your Experience</Text>
         <Text style={styles.subtitle}>How was your service with James Mwangi?</Text>
 
-        {/* Stars */}
-        <View style={styles.stars}>
+        {/* Stars - Touch targets meet 44pt minimum */}
+        <View style={styles.stars} accessibilityRole="radiogroup" accessibilityLabel="Rating">
           {[1, 2, 3, 4, 5].map((star) => (
             <TouchableOpacity
               key={star}
               onPress={() => setRating(star)}
-              accessibilityLabel={`${star} star${star > 1 ? 's' : ''}`}
+              style={styles.starButton}
+              hitSlop={TOUCH_TARGET.HIT_SLOP}
+              accessibilityLabel={`Rate ${star} star${star > 1 ? 's' : ''}`}
               accessibilityRole="button"
+              accessibilityState={{ selected: star <= rating }}
+              accessibilityHint={`Sets rating to ${star} out of 5`}
             >
               <Star
                 size={40}
@@ -130,6 +135,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.md,
     marginBottom: spacing.xl,
+  },
+  starButton: {
+    minWidth: TOUCH_TARGET.MIN,
+    minHeight: TOUCH_TARGET.MIN,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tags: {
     flexDirection: 'row',

@@ -3,6 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -12,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { colors, typography, spacing, borderRadius } from '@/theme';
+import { useScreenReader } from '@/utils/accessibility';
 
 interface SwipeConfirmProps {
   onConfirm: () => void;
@@ -24,6 +26,7 @@ function SwipeConfirm({
   onConfirm,
   label = 'Swipe to Confirm',
 }: SwipeConfirmProps) {
+  const isScreenReaderActive = useScreenReader();
   const translateX = useSharedValue(0);
   const [trackWidth, setTrackWidth] = useState(0);
   const maxSlide = trackWidth - THUMB_SIZE - spacing.xs * 2;
@@ -52,10 +55,29 @@ function SwipeConfirm({
     transform: [{ translateX: translateX.value }],
   }));
 
+  // When screen reader is active, provide a simple button alternative
+  // since swipe gestures are not accessible to screen reader users
+  if (isScreenReaderActive) {
+    return (
+      <TouchableOpacity
+        onPress={onConfirm}
+        style={styles.track}
+        accessibilityLabel={label}
+        accessibilityRole="button"
+        accessibilityHint="Double tap to confirm"
+      >
+        <Text style={styles.label}>{label}</Text>
+      </TouchableOpacity>
+    );
+  }
+
   return (
     <View
       style={styles.track}
       onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
+      accessibilityLabel={label}
+      accessibilityHint="Swipe right to confirm"
+      accessibilityRole="button"
     >
       <Text style={styles.label}>{label}</Text>
       <GestureDetector gesture={panGesture}>

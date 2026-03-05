@@ -12,20 +12,31 @@ import { useRouter } from 'expo-router';
 import { CheckCircle } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { useReducedMotion, announceForAccessibility } from '@/utils/accessibility';
 
 export default function ServiceCompletionScreen() {
   const router = useRouter();
-  const scaleValue = useSharedValue(0);
-  const fadeValue = useSharedValue(0);
+  const prefersReducedMotion = useReducedMotion();
+  const scaleValue = useSharedValue(prefersReducedMotion ? 1 : 0);
+  const fadeValue = useSharedValue(prefersReducedMotion ? 1 : 0);
 
   useEffect(() => {
+    announceForAccessibility('Service complete. Your vehicle has been serviced successfully.');
+
+    // Respect prefers-reduced-motion
+    if (prefersReducedMotion) {
+      scaleValue.value = 1;
+      fadeValue.value = 1;
+      return;
+    }
+
     // Spring scale animation followed by fade
     scaleValue.value = withSpring(1, { damping: 4, stiffness: 80 });
     fadeValue.value = withDelay(
-      600, // delay to let spring finish
+      600,
       withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) })
     );
-  }, []);
+  }, [prefersReducedMotion]);
 
   const scaleAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scaleValue.value }],

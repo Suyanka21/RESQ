@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft, Phone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 export default function PhoneEntryScreen() {
   const router = useRouter();
@@ -36,8 +37,10 @@ export default function PhoneEntryScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
@@ -55,8 +58,11 @@ export default function PhoneEntryScreen() {
           Enter your phone number to {isSignUp ? 'get started' : 'sign in'}
         </Text>
 
-        {/* Phone Input */}
-        <View style={styles.inputContainer}>
+        {/* Phone Input - Form Accessibility */}
+        <Text style={styles.inputLabel} accessibilityRole="text">
+          Phone Number
+        </Text>
+        <View style={styles.inputContainer} accessibilityRole="none">
           <View style={styles.prefix}>
             <Text style={styles.prefixText}>+254</Text>
           </View>
@@ -68,7 +74,8 @@ export default function PhoneEntryScreen() {
             placeholderTextColor={colors.text.disabled}
             keyboardType="phone-pad"
             maxLength={10}
-            accessibilityLabel="Phone number input"
+            accessibilityLabel="Phone number, country code plus 254"
+            accessibilityHint="Enter your 9 or 10 digit phone number"
           />
         </View>
 
@@ -151,6 +158,16 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     color: colors.text.secondary,
     marginBottom: spacing.xl,
+  },
+  inputLabel: {
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.text.secondary,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    alignSelf: 'flex-start',
+    marginBottom: spacing.sm,
+    maxWidth: 360,
   },
   inputContainer: {
     flexDirection: 'row',

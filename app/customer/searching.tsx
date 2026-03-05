@@ -14,10 +14,12 @@ import { useRouter } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius } from '@/theme';
 import { useRequestStore } from '@/stores/requestStore';
+import { useReducedMotion, announceForAccessibility } from '@/utils/accessibility';
 
 export default function SearchingScreen() {
   const router = useRouter();
   const serviceType = useRequestStore((s) => s.serviceType);
+  const prefersReducedMotion = useReducedMotion();
 
   const pulse1 = useSharedValue(0);
   const pulse2 = useSharedValue(0);
@@ -25,33 +27,39 @@ export default function SearchingScreen() {
   const shimmer = useSharedValue(0);
 
   useEffect(() => {
-    // Pulsing circles with staggered delays
-    const createPulseAnim = (delay: number) =>
-      withRepeat(
-        withDelay(
-          delay,
-          withSequence(
-            withTiming(1, { duration: 2000, easing: Easing.linear }),
-            withTiming(0, { duration: 0 })
-          )
+    // Announce to screen readers
+    announceForAccessibility(`Searching for ${serviceType || 'service'} provider nearby`);
+
+    // Respect prefers-reduced-motion
+    if (!prefersReducedMotion) {
+      // Pulsing circles with staggered delays
+      const createPulseAnim = (delay: number) =>
+        withRepeat(
+          withDelay(
+            delay,
+            withSequence(
+              withTiming(1, { duration: 2000, easing: Easing.linear }),
+              withTiming(0, { duration: 0 })
+            )
+          ),
+          -1,
+          false
+        );
+
+      pulse1.value = createPulseAnim(0);
+      pulse2.value = createPulseAnim(600);
+      pulse3.value = createPulseAnim(1200);
+
+      // Shimmer animation
+      shimmer.value = withRepeat(
+        withSequence(
+          withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0, { duration: 1000, easing: Easing.inOut(Easing.ease) })
         ),
         -1,
         false
       );
-
-    pulse1.value = createPulseAnim(0);
-    pulse2.value = createPulseAnim(600);
-    pulse3.value = createPulseAnim(1200);
-
-    // Shimmer animation
-    shimmer.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
+    }
 
     // Simulate finding a provider
     const timer = setTimeout(() => {
@@ -61,7 +69,7 @@ export default function SearchingScreen() {
     return () => {
       clearTimeout(timer);
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   const pulseStyle1 = useAnimatedStyle(() => ({
     opacity: 1 - pulse1.value,
@@ -83,10 +91,10 @@ export default function SearchingScreen() {
   }));
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="none">
       <View style={styles.center}>
-        {/* Pulsing rings */}
-        <View style={styles.pulseContainer}>
+        {/* Pulsing rings - hidden from screen reader, status conveyed via text */}
+        <View style={styles.pulseContainer} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           <Animated.View style={[styles.pulse, styles.pulseSize, pulseStyle1]} />
           <Animated.View style={[styles.pulse, styles.pulseSize, pulseStyle2]} />
           <Animated.View style={[styles.pulse, styles.pulseSize, pulseStyle3]} />
@@ -95,8 +103,8 @@ export default function SearchingScreen() {
           </View>
         </View>
 
-        <Text style={styles.title}>Searching for Provider</Text>
-        <Text style={styles.subtitle}>
+        <Text style={styles.title} accessibilityRole="header">Searching for Provider</Text>
+        <Text style={styles.subtitle} accessibilityLiveRegion="polite">
           Finding nearest {serviceType || 'service'} provider...
         </Text>
 

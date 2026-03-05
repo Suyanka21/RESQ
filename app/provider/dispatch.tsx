@@ -13,15 +13,24 @@ import { useRouter } from 'expo-router';
 import { MapPin, Clock, DollarSign, Navigation } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useProviderStore } from '@/stores/providerStore';
+import { useReducedMotion, announceForAccessibility } from '@/utils/accessibility';
 
 export default function DispatchScreen() {
   const router = useRouter();
   const { height: SCREEN_HEIGHT } = useWindowDimensions();
   const { setJobStatus, setCurrentJob } = useProviderStore();
-  const slideY = useSharedValue(1000);
+  const prefersReducedMotion = useReducedMotion();
+  const slideY = useSharedValue(prefersReducedMotion ? 0 : 1000);
   const pulseScale = useSharedValue(1);
 
   useEffect(() => {
+    announceForAccessibility('Incoming towing job. Westlands, Nairobi. 3.2 kilometers. KES 5,000.');
+
+    if (prefersReducedMotion) {
+      slideY.value = 0;
+      return;
+    }
+
     slideY.value = withSpring(0, { damping: 8, stiffness: 40 });
 
     pulseScale.value = withRepeat(
@@ -32,7 +41,7 @@ export default function DispatchScreen() {
       -1,
       false
     );
-  }, []);
+  }, [prefersReducedMotion]);
 
   const slideAnimStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: slideY.value }],
@@ -112,8 +121,9 @@ export default function DispatchScreen() {
             <TouchableOpacity
               onPress={handleAccept}
               style={styles.acceptButton}
-              accessibilityLabel="Accept job"
-              accessibilityRole="button"
+                  accessibilityLabel="Accept towing job for KES 5,000"
+                  accessibilityRole="button"
+                  accessibilityHint="Accepts this job and navigates to pickup location"
             >
               <Text style={styles.acceptText}>Accept</Text>
             </TouchableOpacity>
@@ -121,8 +131,9 @@ export default function DispatchScreen() {
           <TouchableOpacity
             onPress={handleDecline}
             style={styles.declineButton}
-            accessibilityLabel="Decline job"
-            accessibilityRole="button"
+              accessibilityLabel="Decline job"
+              accessibilityRole="button"
+              accessibilityHint="Declines this job and returns to dashboard"
           >
             <Text style={styles.declineText}>Decline</Text>
           </TouchableOpacity>

@@ -7,6 +7,7 @@ import MapPlaceholder from '@/components/MapPlaceholder';
 import ProviderCard from '@/components/ProviderCard';
 import { MapSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
+import { announceForAccessibility } from '@/utils/accessibility';
 
 export default function LiveTrackingScreen() {
   const router = useRouter();
@@ -50,7 +51,7 @@ export default function LiveTrackingScreen() {
       </View>
 
       {/* ETA Banner */}
-      <View style={styles.etaBanner}>
+      <View style={styles.etaBanner} accessibilityRole="text" accessibilityLabel="Estimated arrival: 8 minutes">
         <Text style={styles.etaLabel}>ESTIMATED ARRIVAL</Text>
         <Text style={styles.etaValue}>8 MIN</Text>
       </View>
@@ -71,8 +72,9 @@ export default function LiveTrackingScreen() {
         <View style={styles.actions}>
           <TouchableOpacity
             style={styles.callButton}
-            accessibilityLabel="Call provider"
+            accessibilityLabel="Call provider James Mwangi"
             accessibilityRole="button"
+            accessibilityHint="Opens phone dialer to call your assigned provider"
           >
             <Phone size={18} color={colors.text.onBrand} />
             <Text style={styles.callText}>Call Provider</Text>

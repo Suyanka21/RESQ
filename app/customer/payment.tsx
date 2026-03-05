@@ -11,6 +11,7 @@ import { ArrowLeft, Smartphone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { PaymentError } from '@/components/ui/ErrorStates';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 export default function PaymentScreen() {
   const router = useRouter();
@@ -39,8 +40,10 @@ export default function PaymentScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
@@ -85,7 +88,8 @@ export default function PaymentScreen() {
             maxLength={4}
             secureTextEntry
             autoFocus
-            accessibilityLabel="M-Pesa PIN input"
+            accessibilityLabel="M-Pesa PIN, 4 digits required"
+            accessibilityHint="Enter your 4-digit M-Pesa PIN to authorize payment"
           />
         </MetalSurface>
 

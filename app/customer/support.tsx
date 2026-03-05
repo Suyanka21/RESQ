@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft, Phone, MessageCircle, Mail, HelpCircle } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 const SUPPORT_OPTIONS = [
   { id: 'call', label: 'Call Support', sublabel: '+254 700 000 000', icon: Phone, action: 'tel:+254700000000' },
@@ -28,12 +29,14 @@ export default function SupportScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Support</Text>
+        <Text style={styles.headerTitle} accessibilityRole="header">Support</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -48,9 +51,10 @@ export default function SupportScreen() {
             return (
               <TouchableOpacity
                 key={option.id}
-                onPress={() => handleAction(option.action)}
-                accessibilityLabel={option.label}
-                accessibilityRole="button"
+                  onPress={() => handleAction(option.action)}
+                  accessibilityLabel={`${option.label}: ${option.sublabel}`}
+                  accessibilityRole="button"
+                  accessibilityHint={option.action ? 'Opens external app' : 'Opens support option'}
               >
                 <MetalSurface variant="extruded" radius="lg" style={styles.optionCard}>
                   <View style={styles.optionIcon}>
