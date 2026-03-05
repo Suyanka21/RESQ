@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, TrendingUp, Calendar } from 'lucide-react-native';
@@ -15,10 +15,31 @@ const MOCK_EARNINGS = [
   { id: '4', date: 'Sun, Jan 26', jobs: 2, amount: 8500 },
 ];
 
+const EARNING_ITEM_HEIGHT = 56;
+const earningKeyExtractor = (item: typeof MOCK_EARNINGS[0]) => item.id;
+const getEarningItemLayout = (_data: typeof MOCK_EARNINGS | null, index: number) => ({
+  length: EARNING_ITEM_HEIGHT,
+  offset: EARNING_ITEM_HEIGHT * index,
+  index,
+});
+
 export default function ProviderEarningsScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const renderEarningItem = useCallback(({ item }: { item: typeof MOCK_EARNINGS[0] }) => (
+    <View style={styles.dayRow}>
+      <View style={styles.dayInfo}>
+        <Calendar size={16} color={colors.text.tertiary} />
+        <View>
+          <Text style={styles.dayDate}>{item.date}</Text>
+          <Text style={styles.dayJobs}>{item.jobs} jobs</Text>
+        </View>
+      </View>
+      <Text style={styles.dayAmount}>KES {item.amount.toLocaleString()}</Text>
+    </View>
+  ), []);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -122,20 +143,13 @@ export default function ProviderEarningsScreen() {
       <Text style={styles.sectionTitle}>Daily Breakdown</Text>
       <FlatList
         data={MOCK_EARNINGS}
-        keyExtractor={(item) => item.id}
+        keyExtractor={earningKeyExtractor}
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <View style={styles.dayRow}>
-            <View style={styles.dayInfo}>
-              <Calendar size={16} color={colors.text.tertiary} />
-              <View>
-                <Text style={styles.dayDate}>{item.date}</Text>
-                <Text style={styles.dayJobs}>{item.jobs} jobs</Text>
-              </View>
-            </View>
-            <Text style={styles.dayAmount}>KES {item.amount.toLocaleString()}</Text>
-          </View>
-        )}
+        renderItem={renderEarningItem}
+        getItemLayout={getEarningItemLayout}
+        removeClippedSubviews
+        maxToRenderPerBatch={10}
+        windowSize={5}
       />
 
       {/* Payout Button */}

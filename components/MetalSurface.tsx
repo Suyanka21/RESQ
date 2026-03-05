@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ViewStyle, StyleProp, StyleSheet } from 'react-native';
+import { View, ViewStyle, StyleProp } from 'react-native';
 import { colors, shadows, borderRadius } from '@/theme';
 
 interface MetalSurfaceProps {
@@ -9,7 +9,7 @@ interface MetalSurfaceProps {
   radius?: keyof typeof borderRadius;
 }
 
-export default function MetalSurface({
+function MetalSurface({
   children,
   variant = 'extruded',
   style,
@@ -47,3 +47,5 @@ export default function MetalSurface({
     </View>
   );
 }
+
+export default React.memo(MetalSurface);

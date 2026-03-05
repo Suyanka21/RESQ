@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { CreditCard, Plus, ArrowDownLeft, ArrowUpRight } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
@@ -13,9 +13,35 @@ const MOCK_TRANSACTIONS = [
   { id: '3', type: 'payment', description: 'Battery Jump', amount: -1500, date: 'Jan 15' },
 ];
 
+const TX_ITEM_HEIGHT = 60;
+const txKeyExtractor = (item: typeof MOCK_TRANSACTIONS[0]) => item.id;
+const getTxItemLayout = (_data: typeof MOCK_TRANSACTIONS | null, index: number) => ({
+  length: TX_ITEM_HEIGHT,
+  offset: TX_ITEM_HEIGHT * index,
+  index,
+});
+
 export default function WalletScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const renderTransaction = useCallback(({ item }: { item: typeof MOCK_TRANSACTIONS[0] }) => (
+    <View style={styles.transaction}>
+      <View style={[styles.txIcon, item.amount > 0 ? styles.txIconPositive : styles.txIconNegative]}>
+        {item.amount > 0
+          ? <ArrowDownLeft size={16} color={colors.status.success} />
+          : <ArrowUpRight size={16} color={colors.status.error} />
+        }
+      </View>
+      <View style={styles.txInfo}>
+        <Text style={styles.txDescription}>{item.description}</Text>
+        <Text style={styles.txDate}>{item.date}</Text>
+      </View>
+      <Text style={[styles.txAmount, item.amount > 0 ? styles.txPositive : styles.txNegative]}>
+        {item.amount > 0 ? '+' : ''}{item.amount.toLocaleString()}
+      </Text>
+    </View>
+  ), []);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -99,25 +125,13 @@ export default function WalletScreen() {
       </View>
       <FlatList
         data={MOCK_TRANSACTIONS}
-        keyExtractor={(item) => item.id}
+        keyExtractor={txKeyExtractor}
         contentContainerStyle={styles.transactionList}
-        renderItem={({ item }) => (
-          <View style={styles.transaction}>
-            <View style={[styles.txIcon, item.amount > 0 ? styles.txIconPositive : styles.txIconNegative]}>
-              {item.amount > 0
-                ? <ArrowDownLeft size={16} color={colors.status.success} />
-                : <ArrowUpRight size={16} color={colors.status.error} />
-              }
-            </View>
-            <View style={styles.txInfo}>
-              <Text style={styles.txDescription}>{item.description}</Text>
-              <Text style={styles.txDate}>{item.date}</Text>
-            </View>
-            <Text style={[styles.txAmount, item.amount > 0 ? styles.txPositive : styles.txNegative]}>
-              {item.amount > 0 ? '+' : ''}{item.amount.toLocaleString()}
-            </Text>
-          </View>
-        )}
+        renderItem={renderTransaction}
+        getItemLayout={getTxItemLayout}
+        removeClippedSubviews
+        maxToRenderPerBatch={10}
+        windowSize={5}
       />
     </View>
   );

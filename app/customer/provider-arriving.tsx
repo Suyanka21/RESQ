@@ -1,5 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { MapPin, Phone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
@@ -7,24 +15,18 @@ import ProviderCard from '@/components/ProviderCard';
 
 export default function ProviderArrivingScreen() {
   const router = useRouter();
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pulseScale = useSharedValue(1);
 
   useEffect(() => {
-    // High-frequency pulse
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.1,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
+    // High-frequency pulse using reanimated
+    pulseScale.value = withRepeat(
+      withSequence(
+        withTiming(1.1, { duration: 400, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 400, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
 
     // Auto-advance
     const timer = setTimeout(() => {
@@ -33,11 +35,15 @@ export default function ProviderArrivingScreen() {
     return () => clearTimeout(timer);
   }, []);
 
+  const pulseAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Arriving Indicator */}
-        <Animated.View style={[styles.indicator, { transform: [{ scale: pulseAnim }] }]}>
+        <Animated.View style={[styles.indicator, pulseAnimStyle]}>
           <View style={styles.indicatorInner}>
             <MapPin size={32} color={colors.voltage} />
           </View>

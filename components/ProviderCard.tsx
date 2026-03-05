@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { Shield } from 'lucide-react-native';
 
@@ -12,7 +12,7 @@ interface ProviderCardProps {
   isVerified?: boolean;
 }
 
-export default function ProviderCard({
+function ProviderCard({
   name,
   rating,
   vehicle,
@@ -48,6 +48,8 @@ export default function ProviderCard({
     </View>
   );
 }
+
+export default React.memo(ProviderCard);
 
 const styles = StyleSheet.create({
   card: {

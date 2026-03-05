@@ -1,5 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  withDelay,
+  Easing,
+} from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { CheckCircle } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
@@ -7,35 +15,36 @@ import MetalSurface from '@/components/MetalSurface';
 
 export default function ServiceCompletionScreen() {
   const router = useRouter();
-  const scaleAnim = useRef(new Animated.Value(0)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleValue = useSharedValue(0);
+  const fadeValue = useSharedValue(0);
 
   useEffect(() => {
-    Animated.sequence([
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 4,
-        tension: 80,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    // Spring scale animation followed by fade
+    scaleValue.value = withSpring(1, { damping: 4, stiffness: 80 });
+    fadeValue.value = withDelay(
+      600, // delay to let spring finish
+      withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) })
+    );
   }, []);
+
+  const scaleAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scaleValue.value }],
+  }));
+
+  const fadeAnimStyle = useAnimatedStyle(() => ({
+    opacity: fadeValue.value,
+  }));
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Checkmark Animation */}
-        <Animated.View style={[styles.checkContainer, { transform: [{ scale: scaleAnim }] }]}>
+        <Animated.View style={[styles.checkContainer, scaleAnimStyle]}>
           <View style={styles.checkGlow} />
           <CheckCircle size={72} color={colors.status.success} />
         </Animated.View>
 
-        <Animated.View style={[styles.textBlock, { opacity: fadeAnim }]}>
+        <Animated.View style={[styles.textBlock, fadeAnimStyle]}>
           <Text style={styles.title}>Service Complete!</Text>
           <Text style={styles.subtitle}>Your vehicle has been serviced successfully</Text>
 

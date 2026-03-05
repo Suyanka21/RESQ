@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, MapPin, Clock, CheckCircle } from 'lucide-react-native';
@@ -15,10 +15,43 @@ const MOCK_JOBS = [
   { id: '4', service: 'Towing', customer: 'Grace W.', date: 'Jan 27, 2026', amount: 4250, location: 'Parklands', duration: '50 min' },
 ];
 
+const JOB_ITEM_HEIGHT = 140;
+const jobKeyExtractor = (item: typeof MOCK_JOBS[0]) => item.id;
+const getJobItemLayout = (_data: typeof MOCK_JOBS | null, index: number) => ({
+  length: JOB_ITEM_HEIGHT,
+  offset: JOB_ITEM_HEIGHT * index,
+  index,
+});
+
 export default function ProviderHistoryScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const renderJobItem = useCallback(({ item }: { item: typeof MOCK_JOBS[0] }) => (
+    <MetalSurface variant="extruded" radius="lg" style={styles.card}>
+      <View style={styles.cardHeader}>
+        <View style={styles.serviceTag}>
+          <Text style={styles.serviceText}>{item.service}</Text>
+        </View>
+        <Text style={styles.amountText}>KES {item.amount.toLocaleString()}</Text>
+      </View>
+      <Text style={styles.customerText}>{item.customer}</Text>
+      <View style={styles.infoRow}>
+        <MapPin size={12} color={colors.text.tertiary} />
+        <Text style={styles.infoText}>{item.location}</Text>
+        <Clock size={12} color={colors.text.tertiary} />
+        <Text style={styles.infoText}>{item.duration}</Text>
+      </View>
+      <View style={styles.footerRow}>
+        <Text style={styles.dateText}>{item.date}</Text>
+        <View style={styles.statusBadge}>
+          <CheckCircle size={12} color={colors.status.success} />
+          <Text style={styles.statusText}>Completed</Text>
+        </View>
+      </View>
+    </MetalSurface>
+  ), []);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -77,32 +110,13 @@ export default function ProviderHistoryScreen() {
       ) : (
         <FlatList
           data={MOCK_JOBS}
-          keyExtractor={(item) => item.id}
+          keyExtractor={jobKeyExtractor}
           contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
-            <MetalSurface variant="extruded" radius="lg" style={styles.card}>
-              <View style={styles.cardHeader}>
-                <View style={styles.serviceTag}>
-                  <Text style={styles.serviceText}>{item.service}</Text>
-                </View>
-                <Text style={styles.amountText}>KES {item.amount.toLocaleString()}</Text>
-              </View>
-              <Text style={styles.customerText}>{item.customer}</Text>
-              <View style={styles.infoRow}>
-                <MapPin size={12} color={colors.text.tertiary} />
-                <Text style={styles.infoText}>{item.location}</Text>
-                <Clock size={12} color={colors.text.tertiary} />
-                <Text style={styles.infoText}>{item.duration}</Text>
-              </View>
-              <View style={styles.footerRow}>
-                <Text style={styles.dateText}>{item.date}</Text>
-                <View style={styles.statusBadge}>
-                  <CheckCircle size={12} color={colors.status.success} />
-                  <Text style={styles.statusText}>Completed</Text>
-                </View>
-              </View>
-            </MetalSurface>
-          )}
+          renderItem={renderJobItem}
+          getItemLayout={getJobItemLayout}
+          removeClippedSubviews
+          maxToRenderPerBatch={10}
+          windowSize={5}
         />
       )}
     </View>

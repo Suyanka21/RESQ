@@ -10,7 +10,7 @@ interface ServiceChipProps {
   onPress: () => void;
 }
 
-export default function ServiceChip({
+function ServiceChip({
   label,
   icon,
   color,
@@ -51,6 +51,8 @@ export default function ServiceChip({
     </TouchableOpacity>
   );
 }
+
+export default React.memo(ServiceChip);
 
 const styles = StyleSheet.create({
   chip: {

@@ -1,11 +1,16 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  PanResponder,
-  Animated,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { colors, typography, spacing, borderRadius } from '@/theme';
 
 interface SwipeConfirmProps {
@@ -15,46 +20,37 @@ interface SwipeConfirmProps {
 
 const THUMB_SIZE = 56;
 
-export default function SwipeConfirm({
+function SwipeConfirm({
   onConfirm,
   label = 'Swipe to Confirm',
 }: SwipeConfirmProps) {
-  const translateX = useRef(new Animated.Value(0)).current;
+  const translateX = useSharedValue(0);
   const [trackWidth, setTrackWidth] = useState(0);
-  const maxSlideRef = useRef(0);
+  const maxSlide = trackWidth - THUMB_SIZE - spacing.xs * 2;
 
-  // Keep maxSlide ref in sync with trackWidth so PanResponder always reads fresh value
-  maxSlideRef.current = trackWidth - THUMB_SIZE - spacing.xs * 2;
+  const triggerConfirm = useCallback(() => {
+    onConfirm();
+  }, [onConfirm]);
 
-  const panResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onMoveShouldSetPanResponder: () => true,
-        onPanResponderMove: (_, gestureState) => {
-          const maxSlide = maxSlideRef.current;
-          if (maxSlide <= 0) return;
-          const newX = Math.max(0, Math.min(gestureState.dx, maxSlide));
-          translateX.setValue(newX);
-        },
-        onPanResponderRelease: (_, gestureState) => {
-          const maxSlide = maxSlideRef.current;
-          if (maxSlide <= 0) return;
-          if (gestureState.dx > maxSlide * 0.8) {
-            Animated.spring(translateX, {
-              toValue: maxSlide,
-              useNativeDriver: true,
-            }).start(() => onConfirm());
-          } else {
-            Animated.spring(translateX, {
-              toValue: 0,
-              useNativeDriver: true,
-            }).start();
-          }
-        },
-      }),
-    [onConfirm, translateX]
-  );
+  const panGesture = Gesture.Pan()
+    .onUpdate((event) => {
+      if (maxSlide <= 0) return;
+      translateX.value = Math.max(0, Math.min(event.translationX, maxSlide));
+    })
+    .onEnd((event) => {
+      if (maxSlide <= 0) return;
+      if (event.translationX > maxSlide * 0.8) {
+        translateX.value = withSpring(maxSlide, { damping: 15, stiffness: 150 }, () => {
+          runOnJS(triggerConfirm)();
+        });
+      } else {
+        translateX.value = withSpring(0, { damping: 15, stiffness: 150 });
+      }
+    });
+
+  const thumbAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
 
   return (
     <View
@@ -62,15 +58,18 @@ export default function SwipeConfirm({
       onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
     >
       <Text style={styles.label}>{label}</Text>
-      <Animated.View
-        {...panResponder.panHandlers}
-        style={[styles.thumb, { transform: [{ translateX }] }]}
-      >
-        <Text style={styles.arrow}>{'\u276F\u276F'}</Text>
-      </Animated.View>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View
+          style={[styles.thumb, thumbAnimStyle]}
+        >
+          <Text style={styles.arrow}>{'\u276F\u276F'}</Text>
+        </Animated.View>
+      </GestureDetector>
     </View>
   );
 }
+
+export default React.memo(SwipeConfirm);
 
 const styles = StyleSheet.create({
   track: {
