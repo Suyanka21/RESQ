@@ -10,6 +10,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useReducedMotion } from '@/utils/accessibility';
@@ -55,17 +56,20 @@ function AnimatedPressable({
   const tapGesture = Gesture.Tap()
     .enabled(!disabled)
     .onBegin(() => {
+      'worklet';
       if (!prefersReducedMotion) {
         scale.value = withSpring(scaleValue, SPRING_CONFIG.press);
       }
     })
     .onFinalize(() => {
+      'worklet';
       if (!prefersReducedMotion) {
         scale.value = withSpring(1, SPRING_CONFIG.press);
       }
     })
     .onEnd(() => {
-      handlePress();
+      'worklet';
+      runOnJS(handlePress)();
     });
 
   const animatedStyle = useAnimatedStyle(() => ({

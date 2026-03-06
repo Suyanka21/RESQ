@@ -19,7 +19,7 @@ const MOCK_JOBS = [
 
 const JOB_ITEM_HEIGHT = 140;
 const jobKeyExtractor = (item: typeof MOCK_JOBS[0]) => item.id;
-const getJobItemLayout = (_data: typeof MOCK_JOBS | null, index: number) => ({
+const getJobItemLayout = (_data: ArrayLike<any> | null | undefined, index: number) => ({
   length: JOB_ITEM_HEIGHT,
   offset: JOB_ITEM_HEIGHT * index,
   index,
@@ -30,11 +30,8 @@ export default function ProviderHistoryScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+  const handleRefresh = useCallback(async () => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 1000));
   }, []);
 
   const renderJobItem = useCallback(({ item, index }: { item: typeof MOCK_JOBS[0]; index: number }) => (
@@ -123,17 +120,20 @@ export default function ProviderHistoryScreen() {
       {MOCK_JOBS.length === 0 ? (
         <EmptyHistory />
       ) : (
-        <PullToRefresh refreshing={refreshing} onRefresh={handleRefresh}>
-          <FlatList
-            data={MOCK_JOBS}
-            keyExtractor={jobKeyExtractor}
-            contentContainerStyle={styles.list}
-            renderItem={renderJobItem}
-            getItemLayout={getJobItemLayout}
-            removeClippedSubviews
-            maxToRenderPerBatch={10}
-            windowSize={5}
-          />
+        <PullToRefresh onRefresh={handleRefresh}>
+          {(refreshControl) => (
+            <FlatList
+              data={MOCK_JOBS}
+              keyExtractor={jobKeyExtractor}
+              contentContainerStyle={styles.list}
+              renderItem={renderJobItem}
+              getItemLayout={getJobItemLayout}
+              removeClippedSubviews
+              maxToRenderPerBatch={10}
+              windowSize={5}
+              refreshControl={refreshControl}
+            />
+          )}
         </PullToRefresh>
       )}
     </View>

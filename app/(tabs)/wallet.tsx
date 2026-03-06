@@ -18,7 +18,7 @@ const MOCK_TRANSACTIONS = [
 
 const TX_ITEM_HEIGHT = 60;
 const txKeyExtractor = (item: typeof MOCK_TRANSACTIONS[0]) => item.id;
-const getTxItemLayout = (_data: typeof MOCK_TRANSACTIONS | null, index: number) => ({
+const getTxItemLayout = (_data: ArrayLike<any> | null | undefined, index: number) => ({
   length: TX_ITEM_HEIGHT,
   offset: TX_ITEM_HEIGHT * index,
   index,
@@ -101,27 +101,27 @@ export default function WalletScreen() {
 
       {/* Balance Card */}
       <FadeInView delay={100}>
-      <ContextualTooltip
-        id="wallet"
-        message="Add M-Pesa for instant payments. No cash needed during emergencies."
-        arrowPosition="top"
-        delay={800}
-      >
-      <GlassmorphicPanel intensity="medium" radius="xl" style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Available Balance</Text>
-        <Text style={styles.balanceAmount}>KES 3,500</Text>
-        <View style={styles.balanceActions}>
-          <AnimatedPressable
-            onPress={() => { mediumHaptic(); }}
-            style={styles.balanceButton}
-            accessibilityLabel="Top up wallet"
-          >
-            <Plus size={16} color={colors.text.onBrand} />
-            <Text style={styles.balanceButtonText}>Top Up</Text>
-          </AnimatedPressable>
-        </View>
-      </GlassmorphicPanel>
-      </ContextualTooltip>
+        <ContextualTooltip
+          id="wallet"
+          message="Add M-Pesa for instant payments. No cash needed during emergencies."
+          arrowPosition="top"
+          delay={800}
+        >
+          <GlassmorphicPanel intensity="medium" radius="xl" style={styles.balanceCard}>
+            <Text style={styles.balanceLabel}>Available Balance</Text>
+            <Text style={styles.balanceAmount}>KES 3,500</Text>
+            <View style={styles.balanceActions}>
+              <AnimatedPressable
+                onPress={() => { mediumHaptic(); }}
+                style={styles.balanceButton}
+                accessibilityLabel="Top up wallet"
+              >
+                <Plus size={16} color={colors.text.onBrand} />
+                <Text style={styles.balanceButtonText}>Top Up</Text>
+              </AnimatedPressable>
+            </View>
+          </GlassmorphicPanel>
+        </ContextualTooltip>
       </FadeInView>
 
       {/* Payment Methods */}

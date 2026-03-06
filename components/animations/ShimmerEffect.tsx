@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle, DimensionValue } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -19,7 +19,7 @@ import { colors, borderRadius as br } from '@/theme';
 import { useReducedMotion } from '@/utils/accessibility';
 
 interface ShimmerEffectProps {
-  width: number | string;
+  width: DimensionValue;
   height: number;
   borderRadius?: number;
   style?: StyleProp<ViewStyle>;

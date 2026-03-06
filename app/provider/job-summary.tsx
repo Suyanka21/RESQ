@@ -35,49 +35,51 @@ export default function ProviderJobSummaryScreen() {
 
         {/* Receipt Card */}
         <FadeInView delay={400}>
-        <GlassmorphicPanel intensity="medium" radius="xl" style={styles.receiptCard} accessible accessibilityLabel="Receipt. Service: Towing. Customer: John Doe. Location: Westlands, Nairobi. Duration: 45 minutes. Date: January 30, 2026. Base Fare: KES 5,000. Platform Fee: KES 750. Your Earnings: KES 4,250.">
-          <Text style={styles.receiptHeader}>RECEIPT</Text>
-          <View style={styles.receiptDivider} />
+          <View accessible accessibilityLabel="Receipt. Service: Towing. Customer: John Doe. Location: Westlands, Nairobi. Duration: 45 minutes. Date: January 30, 2026. Base Fare: KES 5,000. Platform Fee: KES 750. Your Earnings: KES 4,250.">
+            <GlassmorphicPanel intensity="medium" radius="xl" style={styles.receiptCard}>
+              <Text style={styles.receiptHeader}>RECEIPT</Text>
+              <View style={styles.receiptDivider} />
 
-          <View style={styles.receiptRow}>
-            <Text style={styles.receiptLabel}>Service</Text>
-            <Text style={styles.receiptValue}>Towing</Text>
-          </View>
-          <View style={styles.receiptRow}>
-            <Text style={styles.receiptLabel}>Customer</Text>
-            <Text style={styles.receiptValue}>John Doe</Text>
-          </View>
-          <View style={styles.receiptRow}>
-            <Text style={styles.receiptLabel}>Location</Text>
-            <Text style={styles.receiptValue}>Westlands, Nairobi</Text>
-          </View>
-          <View style={styles.receiptRow}>
-            <Text style={styles.receiptLabel}>Duration</Text>
-            <Text style={styles.receiptValue}>45 min</Text>
-          </View>
-          <View style={styles.receiptRow}>
-            <Text style={styles.receiptLabel}>Date</Text>
-            <Text style={styles.receiptValue}>Jan 30, 2026</Text>
-          </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptLabel}>Service</Text>
+                <Text style={styles.receiptValue}>Towing</Text>
+              </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptLabel}>Customer</Text>
+                <Text style={styles.receiptValue}>John Doe</Text>
+              </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptLabel}>Location</Text>
+                <Text style={styles.receiptValue}>Westlands, Nairobi</Text>
+              </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptLabel}>Duration</Text>
+                <Text style={styles.receiptValue}>45 min</Text>
+              </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptLabel}>Date</Text>
+                <Text style={styles.receiptValue}>Jan 30, 2026</Text>
+              </View>
 
-          <View style={styles.receiptDivider} />
+              <View style={styles.receiptDivider} />
 
-          <View style={styles.receiptRow}>
-            <Text style={styles.receiptLabel}>Base Fare</Text>
-            <Text style={styles.receiptValue}>KES 5,000</Text>
-          </View>
-          <View style={styles.receiptRow}>
-            <Text style={styles.receiptLabel}>Platform Fee</Text>
-            <Text style={styles.receiptValue}>-KES 750</Text>
-          </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptLabel}>Base Fare</Text>
+                <Text style={styles.receiptValue}>KES 5,000</Text>
+              </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptLabel}>Platform Fee</Text>
+                <Text style={styles.receiptValue}>-KES 750</Text>
+              </View>
 
-          <View style={styles.receiptDivider} />
+              <View style={styles.receiptDivider} />
 
-          <View style={styles.receiptRow}>
-            <Text style={styles.earningsLabel}>Your Earnings</Text>
-            <Text style={styles.earningsValue}>KES 4,250</Text>
+              <View style={styles.receiptRow}>
+                <Text style={styles.earningsLabel}>Your Earnings</Text>
+                <Text style={styles.earningsValue}>KES 4,250</Text>
+              </View>
+            </GlassmorphicPanel>
           </View>
-        </GlassmorphicPanel>
         </FadeInView>
 
         {/* Share Button */}

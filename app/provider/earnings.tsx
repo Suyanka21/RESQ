@@ -20,7 +20,7 @@ const MOCK_EARNINGS = [
 
 const EARNING_ITEM_HEIGHT = 56;
 const earningKeyExtractor = (item: typeof MOCK_EARNINGS[0]) => item.id;
-const getEarningItemLayout = (_data: typeof MOCK_EARNINGS | null, index: number) => ({
+const getEarningItemLayout = (_data: ArrayLike<any> | null | undefined, index: number) => ({
   length: EARNING_ITEM_HEIGHT,
   offset: EARNING_ITEM_HEIGHT * index,
   index,
@@ -31,11 +31,8 @@ export default function ProviderEarningsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+  const handleRefresh = useCallback(async () => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 1000));
   }, []);
 
   const renderEarningItem = useCallback(({ item, index }: { item: typeof MOCK_EARNINGS[0]; index: number }) => (
@@ -146,14 +143,14 @@ export default function ProviderEarningsScreen() {
 
       {/* Total Earnings - Oversized Typography (48px) */}
       <FadeInView delay={100}>
-      <View style={styles.totalSection} accessible accessibilityLabel="This week's earnings: KES 54,750. Up 12 percent from last week">
-        <Text style={styles.totalLabel}>THIS WEEK</Text>
-        <Text style={styles.totalAmount}>KES 54,750</Text>
-        <View style={styles.trendRow}>
-          <TrendingUp size={16} color={colors.status.success} />
-          <Text style={styles.trendText}>+12% from last week</Text>
+        <View style={styles.totalSection} accessible accessibilityLabel="This week's earnings: KES 54,750. Up 12 percent from last week">
+          <Text style={styles.totalLabel}>THIS WEEK</Text>
+          <Text style={styles.totalAmount}>KES 54,750</Text>
+          <View style={styles.trendRow}>
+            <TrendingUp size={16} color={colors.status.success} />
+            <Text style={styles.trendText}>+12% from last week</Text>
+          </View>
         </View>
-      </View>
       </FadeInView>
 
       {/* Stats Row */}
@@ -174,17 +171,20 @@ export default function ProviderEarningsScreen() {
 
       {/* Daily Breakdown */}
       <Text style={styles.sectionTitle}>Daily Breakdown</Text>
-      <PullToRefresh refreshing={refreshing} onRefresh={handleRefresh}>
-        <FlatList
-          data={MOCK_EARNINGS}
-          keyExtractor={earningKeyExtractor}
-          contentContainerStyle={styles.list}
-          renderItem={renderEarningItem}
-          getItemLayout={getEarningItemLayout}
-          removeClippedSubviews
-          maxToRenderPerBatch={10}
-          windowSize={5}
-        />
+      <PullToRefresh onRefresh={handleRefresh}>
+        {(refreshControl) => (
+          <FlatList
+            data={MOCK_EARNINGS}
+            keyExtractor={earningKeyExtractor}
+            contentContainerStyle={styles.list}
+            renderItem={renderEarningItem}
+            getItemLayout={getEarningItemLayout}
+            removeClippedSubviews
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            refreshControl={refreshControl}
+          />
+        )}
       </PullToRefresh>
 
       {/* Payout Button */}

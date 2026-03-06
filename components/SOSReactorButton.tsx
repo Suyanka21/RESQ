@@ -12,6 +12,7 @@ import Animated, {
   withTiming,
   withSpring,
   Easing,
+  runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { colors, shadows, typography, spacing } from '@/theme';
@@ -67,17 +68,20 @@ function SOSReactorButton({
 
   const tapGesture = Gesture.Tap()
     .onBegin(() => {
+      'worklet';
       if (!prefersReducedMotion) {
         pressScale.value = withSpring(0.9, SPRING_CONFIG.press);
       }
     })
     .onFinalize(() => {
+      'worklet';
       if (!prefersReducedMotion) {
         pressScale.value = withSpring(1, SPRING_CONFIG.press);
       }
     })
     .onEnd(() => {
-      handlePress();
+      'worklet';
+      runOnJS(handlePress)();
     });
 
   const pulseAnimStyle = useAnimatedStyle(() => ({

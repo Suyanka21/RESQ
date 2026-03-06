@@ -7,6 +7,8 @@ interface MetalSurfaceProps {
   variant?: 'extruded' | 'sunken' | 'glass';
   style?: StyleProp<ViewStyle>;
   radius?: keyof typeof borderRadius;
+  accessible?: boolean;
+  accessibilityLabel?: string;
 }
 
 function MetalSurface({
@@ -14,6 +16,8 @@ function MetalSurface({
   variant = 'extruded',
   style,
   radius = 'lg',
+  accessible,
+  accessibilityLabel,
 }: MetalSurfaceProps) {
   const variantStyles: Record<string, ViewStyle> = {
     extruded: {
@@ -42,6 +46,8 @@ function MetalSurface({
         variantStyles[variant],
         style,
       ]}
+      accessible={accessible}
+      accessibilityLabel={accessibilityLabel}
     >
       {children}
     </View>

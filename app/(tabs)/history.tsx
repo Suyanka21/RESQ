@@ -17,7 +17,7 @@ const MOCK_HISTORY = [
 
 const ITEM_HEIGHT = 140;
 const keyExtractor = (item: typeof MOCK_HISTORY[0]) => item.id;
-const getItemLayout = (_data: typeof MOCK_HISTORY | null, index: number) => ({
+const getItemLayout = (_data: ArrayLike<any> | null | undefined, index: number) => ({
   length: ITEM_HEIGHT,
   offset: ITEM_HEIGHT * index,
   index,
@@ -40,27 +40,27 @@ export default function HistoryScreen() {
     <FadeInView delay={index * 80} duration={300}>
       <SwipeToDelete onDelete={() => { /* handle delete */ }}>
         <MetalSurface variant="extruded" radius="lg" style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={styles.serviceTag}>
-          <Text style={styles.serviceText}>{item.service}</Text>
-        </View>
-        <Text style={styles.priceText}>KES {item.price.toLocaleString()}</Text>
-      </View>
-      <View style={styles.cardBody}>
-        <View style={styles.infoRow}>
-          <MapPin size={14} color={colors.text.tertiary} />
-          <Text style={styles.infoText}>{item.location}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Clock size={14} color={colors.text.tertiary} />
-          <Text style={styles.infoText}>{item.date}</Text>
-        </View>
-      </View>
-      <View style={styles.statusRow}>
-        <View style={styles.statusDot} />
-        <Text style={styles.statusText}>Completed</Text>
-      </View>
-    </MetalSurface>
+          <View style={styles.cardHeader}>
+            <View style={styles.serviceTag}>
+              <Text style={styles.serviceText}>{item.service}</Text>
+            </View>
+            <Text style={styles.priceText}>KES {item.price.toLocaleString()}</Text>
+          </View>
+          <View style={styles.cardBody}>
+            <View style={styles.infoRow}>
+              <MapPin size={14} color={colors.text.tertiary} />
+              <Text style={styles.infoText}>{item.location}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Clock size={14} color={colors.text.tertiary} />
+              <Text style={styles.infoText}>{item.date}</Text>
+            </View>
+          </View>
+          <View style={styles.statusRow}>
+            <View style={styles.statusDot} />
+            <Text style={styles.statusText}>Completed</Text>
+          </View>
+        </MetalSurface>
       </SwipeToDelete>
     </FadeInView>
   ), []);

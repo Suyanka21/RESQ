@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { colors } from '@/theme';
 import { useReducedMotion, getAnimationDuration } from '@/utils/accessibility';
 import { useOnboardingStore } from '@/stores/onboardingStore';
@@ -19,7 +20,7 @@ export default function RootLayout() {
   }, [loadOnboardingState]);
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -60,6 +61,6 @@ export default function RootLayout() {
         <Stack.Screen name="provider/history" options={{ animation: slideAnimation }} />
         <Stack.Screen name="provider/support" options={{ animation: slideAnimation }} />
       </Stack>
-    </>
+    </GestureHandlerRootView>
   );
 }

@@ -25,7 +25,10 @@
         "backgroundColor": "#0A0A0A"
       },
       "package": "com.resq.app",
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -40,7 +43,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow ResQ to use your location for emergency dispatch."
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

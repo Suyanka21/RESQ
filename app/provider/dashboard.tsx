@@ -75,7 +75,7 @@ export default function ProviderDashboardScreen() {
 
       {/* Bottom Panel */}
       <View style={styles.bottomPanel}>
-        <OfflineQueueBanner queuedCount={offlineQueueCount} onPress={() => {}} />
+        <OfflineQueueBanner queuedCount={offlineQueueCount} onPress={() => { }} />
 
         {/* Availability Toggle */}
         <GlassmorphicPanel intensity="medium" radius="xxl" style={styles.panel}>
@@ -115,7 +115,7 @@ export default function ProviderDashboardScreen() {
 
         {/* Bottom Nav */}
         <View style={styles.bottomNav}>
-          <AnimatedPressable style={styles.navItem} accessibilityLabel="Dashboard" accessibilityState={{ selected: true }} scaleValue={0.9}>
+          <AnimatedPressable onPress={() => { }} style={styles.navItem} accessibilityLabel="Dashboard" accessibilityState={{ selected: true }} scaleValue={0.9}>
             <MapPin size={20} color={colors.voltage} />
             <Text style={[styles.navText, { color: colors.voltage }]}>Home</Text>
           </AnimatedPressable>
