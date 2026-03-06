@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,6 +13,8 @@ import { CheckCircle } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { useReducedMotion, announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable, GlassmorphicPanel } from '@/components/animations';
+import { successHaptic } from '@/utils/haptics';
 
 export default function ServiceCompletionScreen() {
   const router = useRouter();
@@ -60,7 +62,7 @@ export default function ServiceCompletionScreen() {
           <Text style={styles.subtitle}>Your vehicle has been serviced successfully</Text>
 
           {/* Summary */}
-          <MetalSurface variant="glass" radius="xl" style={styles.summaryCard}>
+          <GlassmorphicPanel intensity="light" radius="xl" style={styles.summaryCard}>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Service</Text>
               <Text style={styles.summaryValue}>Towing</Text>
@@ -80,19 +82,21 @@ export default function ServiceCompletionScreen() {
               <Text style={styles.summaryLabel}>Amount</Text>
               <Text style={styles.summaryAmount}>KES 5,000</Text>
             </View>
-          </MetalSurface>
+          </GlassmorphicPanel>
         </Animated.View>
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={() => router.push('/customer/payment')}
+        <AnimatedPressable
+          onPress={() => {
+            successHaptic();
+            router.push('/customer/payment');
+          }}
           style={styles.payButton}
           accessibilityLabel="Proceed to payment"
-          accessibilityRole="button"
         >
           <Text style={styles.payText}>Proceed to Payment</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );

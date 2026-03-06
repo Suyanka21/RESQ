@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +12,8 @@ import { ArrowLeft, Phone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
 import { TOUCH_TARGET } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
 
 export default function PhoneEntryScreen() {
   const router = useRouter();
@@ -34,29 +35,33 @@ export default function PhoneEntryScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.back()}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Phone size={32} color={colors.voltage} />
-        </View>
+        <FadeInView delay={100}>
+          <View style={styles.iconContainer}>
+            <Phone size={32} color={colors.voltage} />
+          </View>
+        </FadeInView>
 
-        <Text style={styles.title}>
-          {isSignUp ? 'Create Account' : 'Welcome Back'}
-        </Text>
-        <Text style={styles.subtitle}>
-          Enter your phone number to {isSignUp ? 'get started' : 'sign in'}
-        </Text>
+        <FadeInView delay={200}>
+          <Text style={styles.title}>
+            {isSignUp ? 'Create Account' : 'Welcome Back'}
+          </Text>
+        </FadeInView>
+        <FadeInView delay={300}>
+          <Text style={styles.subtitle}>
+            Enter your phone number to {isSignUp ? 'get started' : 'sign in'}
+          </Text>
+        </FadeInView>
 
         {/* Phone Input - Form Accessibility */}
         <Text style={styles.inputLabel} accessibilityRole="text">
@@ -80,12 +85,14 @@ export default function PhoneEntryScreen() {
         </View>
 
         {/* Continue Button */}
-        <TouchableOpacity
-          onPress={handleContinue}
+        <AnimatedPressable
+          onPress={() => {
+            mediumHaptic();
+            handleContinue();
+          }}
           disabled={!isValid}
           style={[styles.continueButton, !isValid && styles.continueButtonDisabled]}
           accessibilityLabel="Continue"
-          accessibilityRole="button"
           accessibilityState={{ disabled: !isValid }}
         >
           <Text
@@ -96,20 +103,19 @@ export default function PhoneEntryScreen() {
           >
             Continue
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
 
         {/* Switch Mode */}
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => setAuthMode(isSignUp ? 'signin' : 'signup')}
           accessibilityLabel={isSignUp ? 'Switch to sign in' : 'Switch to sign up'}
-          accessibilityRole="button"
         >
           <Text style={styles.switchText}>
             {isSignUp
               ? 'Already have an account? Sign In'
               : "Don't have an account? Sign Up"}
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </KeyboardAvoidingView>
   );

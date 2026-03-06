@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Smartphone, CreditCard } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { TOUCH_TARGET } from '@/utils/accessibility';
+import { AnimatedPressable } from '@/components/animations';
+import { selectionHaptic, successHaptic } from '@/utils/haptics';
 
 export default function AddPaymentScreen() {
   const router = useRouter();
@@ -15,16 +17,14 @@ export default function AddPaymentScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.back()}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
         <Text style={styles.headerTitle} accessibilityRole="header">Add Payment</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -32,26 +32,32 @@ export default function AddPaymentScreen() {
       <View style={styles.content}>
         {/* Method Selection */}
         <View style={styles.methodRow}>
-          <TouchableOpacity
-            onPress={() => setMethod('mpesa')}
+          <AnimatedPressable
+            onPress={() => {
+              selectionHaptic();
+              setMethod('mpesa');
+            }}
             style={[styles.methodOption, method === 'mpesa' && styles.methodActive]}
             accessibilityLabel="M-Pesa"
-            accessibilityRole="button"
             accessibilityState={{ selected: method === 'mpesa' }}
+            scaleValue={0.95}
           >
             <Smartphone size={24} color={method === 'mpesa' ? colors.voltage : colors.text.tertiary} />
             <Text style={[styles.methodText, method === 'mpesa' && styles.methodTextActive]}>M-Pesa</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setMethod('card')}
+          </AnimatedPressable>
+          <AnimatedPressable
+            onPress={() => {
+              selectionHaptic();
+              setMethod('card');
+            }}
             style={[styles.methodOption, method === 'card' && styles.methodActive]}
             accessibilityLabel="Card"
-            accessibilityRole="button"
             accessibilityState={{ selected: method === 'card' }}
+            scaleValue={0.95}
           >
             <CreditCard size={24} color={method === 'card' ? colors.voltage : colors.text.tertiary} />
             <Text style={[styles.methodText, method === 'card' && styles.methodTextActive]}>Card</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
 
         {/* Input */}
@@ -114,14 +120,16 @@ export default function AddPaymentScreen() {
         )}
 
         {/* Save Button */}
-        <TouchableOpacity
-          onPress={() => router.back()}
+        <AnimatedPressable
+          onPress={() => {
+            successHaptic();
+            router.back();
+          }}
           style={styles.saveButton}
           accessibilityLabel="Save payment method"
-          accessibilityRole="button"
         >
           <Text style={styles.saveText}>Save Payment Method</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );

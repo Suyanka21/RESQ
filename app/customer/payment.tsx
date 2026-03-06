@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -12,6 +11,8 @@ import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { PaymentError } from '@/components/ui/ErrorStates';
 import { TOUCH_TARGET } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView, GlassmorphicPanel } from '@/components/animations';
+import { heavyHaptic } from '@/utils/haptics';
 
 export default function PaymentScreen() {
   const router = useRouter();
@@ -37,16 +38,14 @@ export default function PaymentScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.back()}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
         <Text style={styles.headerTitle}>Payment</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -59,7 +58,8 @@ export default function PaymentScreen() {
         </View>
 
         {/* M-Pesa Payment */}
-        <MetalSurface variant="glass" radius="xl" style={styles.paymentCard}>
+        <FadeInView delay={100}>
+        <GlassmorphicPanel intensity="medium" radius="xl" style={styles.paymentCard}>
           <View style={styles.mpesaHeader}>
             <View style={styles.mpesaIcon}>
               <Smartphone size={24} color={colors.status.success} />
@@ -91,20 +91,23 @@ export default function PaymentScreen() {
             accessibilityLabel="M-Pesa PIN, 4 digits required"
             accessibilityHint="Enter your 4-digit M-Pesa PIN to authorize payment"
           />
-        </MetalSurface>
+        </GlassmorphicPanel>
+        </FadeInView>
 
         {/* Pay Button */}
-        <TouchableOpacity
-          onPress={handlePay}
+        <AnimatedPressable
+          onPress={() => {
+            heavyHaptic();
+            handlePay();
+          }}
           disabled={pin.length < 4}
           style={[styles.payButton, pin.length < 4 && styles.payButtonDisabled]}
           accessibilityLabel="Pay now"
-          accessibilityRole="button"
         >
           <Text style={[styles.payText, pin.length < 4 && styles.payTextDisabled]}>
             Pay KES 5,000
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );

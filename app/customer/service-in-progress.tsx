@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CheckCircle, Circle, Clock } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable } from '@/components/animations';
+import { mediumHaptic, successHaptic } from '@/utils/haptics';
 
 const STEPS = [
   { id: 1, label: 'Provider Arrived', sublabel: 'On site' },
@@ -104,17 +106,23 @@ export default function ServiceInProgressScreen() {
 
       {/* Action */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={handleAdvance}
+        <AnimatedPressable
+          onPress={() => {
+            if (currentStep >= STEPS.length) {
+              successHaptic();
+            } else {
+              mediumHaptic();
+            }
+            handleAdvance();
+          }}
           style={styles.nextButton}
           accessibilityLabel={currentStep < STEPS.length ? `Advance to step ${currentStep + 1} of ${STEPS.length}` : 'Complete service'}
-          accessibilityRole="button"
           accessibilityHint={currentStep < STEPS.length ? 'Moves to the next service step' : 'Marks the service as complete'}
         >
           <Text style={styles.nextText}>
             {currentStep < STEPS.length ? 'Next Step' : 'Complete'}
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );

@@ -3,10 +3,8 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, MapPin } from 'lucide-react-native';
@@ -17,6 +15,7 @@ import MetalSurface from '@/components/MetalSurface';
 import { ServiceUnavailable } from '@/components/ui/ErrorStates';
 import { PermissionError } from '@/components/ui/ErrorStates';
 import { TOUCH_TARGET } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView, GlassmorphicPanel } from '@/components/animations';
 
 const SERVICE_PRICES: Record<string, number> = {
   towing: PRICES.TOWING_BASE,
@@ -65,36 +64,39 @@ export default function RequestFormScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.back()}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to service selection"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
         <Text style={styles.headerTitle}>Request Service</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
         {/* Service Type */}
-        <MetalSurface variant="extruded" radius="lg" style={styles.card}>
-          <Text style={styles.cardLabel}>SERVICE TYPE</Text>
-          <Text style={styles.cardValue}>{(serviceType || 'towing').toUpperCase()}</Text>
-        </MetalSurface>
+        <FadeInView delay={100}>
+          <MetalSurface variant="extruded" radius="lg" style={styles.card}>
+            <Text style={styles.cardLabel}>SERVICE TYPE</Text>
+            <Text style={styles.cardValue}>{(serviceType || 'towing').toUpperCase()}</Text>
+          </MetalSurface>
+        </FadeInView>
 
         {/* Location */}
+        <FadeInView delay={200}>
         <MetalSurface variant="sunken" radius="lg" style={styles.inputCard}>
           <View style={styles.inputRow}>
             <MapPin size={18} color={colors.voltage} />
             <Text style={styles.locationText}>{location}</Text>
           </View>
         </MetalSurface>
+        </FadeInView>
 
         {/* Description - Form Accessibility */}
+        <FadeInView delay={300}>
         <MetalSurface variant="sunken" radius="lg" style={styles.inputCard}>
           <Text style={styles.inputLabel} accessibilityRole="text">DESCRIPTION (OPTIONAL)</Text>
           <TextInput
@@ -109,15 +111,18 @@ export default function RequestFormScreen() {
             accessibilityHint="Describe the issue you need help with"
           />
         </MetalSurface>
+        </FadeInView>
 
         {/* Price Summary */}
-        <MetalSurface variant="glass" radius="lg" style={styles.priceCard}>
+        <FadeInView delay={400}>
+        <GlassmorphicPanel intensity="light" radius="lg" style={styles.priceCard}>
           <View style={styles.priceRow}>
             <Text style={styles.priceLabel}>Estimated Price</Text>
             <Text style={styles.priceValue}>KES {price.toLocaleString()}</Text>
           </View>
           <Text style={styles.priceNote}>Fixed upfront pricing - no hidden charges</Text>
-        </MetalSurface>
+        </GlassmorphicPanel>
+        </FadeInView>
       </ScrollView>
 
       {/* Swipe to Confirm */}

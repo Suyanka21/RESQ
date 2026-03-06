@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,6 +13,8 @@ import { MapPin, Phone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import ProviderCard from '@/components/ProviderCard';
 import { useReducedMotion, announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic, successHaptic } from '@/utils/haptics';
 
 export default function ProviderArrivingScreen() {
   const router = useRouter();
@@ -71,23 +73,27 @@ export default function ProviderArrivingScreen() {
         </View>
 
         {/* Action */}
-        <TouchableOpacity
-          style={styles.callButton}
-          accessibilityLabel="Call provider"
-          accessibilityRole="button"
-        >
-          <Phone size={18} color={colors.text.onBrand} />
-          <Text style={styles.callText}>Call Provider</Text>
-        </TouchableOpacity>
+        <FadeInView delay={200}>
+          <AnimatedPressable
+            onPress={() => { mediumHaptic(); }}
+            style={styles.callButton}
+            accessibilityLabel="Call provider"
+          >
+            <Phone size={18} color={colors.text.onBrand} />
+            <Text style={styles.callText}>Call Provider</Text>
+          </AnimatedPressable>
+        </FadeInView>
 
-        <TouchableOpacity
-          onPress={() => router.replace('/customer/service-in-progress')}
+        <AnimatedPressable
+          onPress={() => {
+            successHaptic();
+            router.replace('/customer/service-in-progress');
+          }}
           style={styles.arrivedButton}
           accessibilityLabel="Provider has arrived"
-          accessibilityRole="button"
         >
           <Text style={styles.arrivedText}>Provider Has Arrived</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );
