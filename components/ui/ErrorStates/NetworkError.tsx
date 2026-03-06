@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { WifiOff, RefreshCw } from 'lucide-react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { RefreshCw } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
+import ErrorIllustration from '@/components/illustrations/ErrorIllustration';
 
 interface NetworkErrorProps {
   queuedCount?: number;
@@ -16,38 +19,50 @@ export default function NetworkError({
 }: NetworkErrorProps) {
   return (
     <View style={styles.container} accessibilityRole="alert">
-      <View style={styles.iconContainer}>
-        <WifiOff size={48} color={colors.text.tertiary} />
-      </View>
-      <Text style={styles.title}>No Connection</Text>
-      <Text style={styles.message}>
-        You appear to be offline. Your requests have been queued and will be sent when connectivity is restored.
-      </Text>
+      <FadeInView delay={100}>
+        <ErrorIllustration size={120} />
+      </FadeInView>
+      <FadeInView delay={200}>
+        <Text style={styles.title}>No Connection</Text>
+      </FadeInView>
+      <FadeInView delay={300}>
+        <Text style={styles.message}>
+          You appear to be offline. Your requests have been queued and will be sent when connectivity is restored.
+        </Text>
+      </FadeInView>
 
       {queuedCount > 0 && (
-        <TouchableOpacity
-          onPress={onViewQueue}
-          style={styles.queueBanner}
-          accessibilityLabel={`${queuedCount} queued requests`}
-          accessibilityRole="button"
-        >
-          <View style={styles.queueDot} />
-          <Text style={styles.queueText}>
-            {queuedCount} request{queuedCount > 1 ? 's' : ''} queued
-          </Text>
-        </TouchableOpacity>
+        <FadeInView delay={400}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              if (onViewQueue) onViewQueue();
+            }}
+            style={styles.queueBanner}
+            accessibilityLabel={`${queuedCount} queued requests`}
+          >
+            <View style={styles.queueDot} />
+            <Text style={styles.queueText}>
+              {queuedCount} request{queuedCount > 1 ? 's' : ''} queued
+            </Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
 
       {onRetry && (
-        <TouchableOpacity
-          onPress={onRetry}
-          style={styles.retryButton}
-          accessibilityLabel="Retry connection"
-          accessibilityRole="button"
-        >
-          <RefreshCw size={18} color={colors.text.onBrand} />
-          <Text style={styles.retryText}>Retry Connection</Text>
-        </TouchableOpacity>
+        <FadeInView delay={500}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              onRetry();
+            }}
+            style={styles.retryButton}
+            accessibilityLabel="Retry connection"
+          >
+            <RefreshCw size={18} color={colors.text.onBrand} />
+            <Text style={styles.retryText}>Retry Connection</Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
     </View>
   );
@@ -60,15 +75,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
-  },
-  iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: colors.background.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xl,
   },
   title: {
     color: colors.text.primary,

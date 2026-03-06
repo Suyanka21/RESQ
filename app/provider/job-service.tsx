@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CheckCircle, Wrench, Clock } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
-import MetalSurface from '@/components/MetalSurface';
 import { announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView, GlassmorphicPanel } from '@/components/animations';
+import { mediumHaptic, successHaptic } from '@/utils/haptics';
 
 type ServiceState = 'arrived' | 'diagnosing' | 'in_service' | 'completing';
 
@@ -47,7 +48,8 @@ export default function ProviderJobServiceScreen() {
       </View>
 
       {/* Customer Info */}
-      <MetalSurface variant="glass" radius="lg" style={styles.customerCard}>
+      <FadeInView delay={100}>
+      <GlassmorphicPanel intensity="light" radius="lg" style={styles.customerCard}>
         <View style={styles.customerRow} accessible accessibilityLabel="Customer: John Doe. Towing service at Westlands, Nairobi">
           <View style={styles.avatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             <Text style={styles.avatarText}>J</Text>
@@ -57,7 +59,8 @@ export default function ProviderJobServiceScreen() {
             <Text style={styles.customerDetail}>Towing - Westlands, Nairobi</Text>
           </View>
         </View>
-      </MetalSurface>
+      </GlassmorphicPanel>
+      </FadeInView>
 
       {/* State Toggles */}
       <View style={styles.states}>
@@ -65,54 +68,65 @@ export default function ProviderJobServiceScreen() {
           const isCompleted = index < currentIndex;
           const isCurrent = state.id === currentState;
           return (
-            <TouchableOpacity
-              key={state.id}
-              onPress={() => isCurrent && handleNext()}
-              disabled={!isCurrent}
-              style={[
-                styles.stateCard,
-                isCompleted && styles.stateCompleted,
-                isCurrent && styles.stateCurrent,
-              ]}
-              accessibilityLabel={`${state.label}. ${state.sublabel}. ${isCompleted ? 'Completed' : isCurrent ? 'Current step, tap to advance' : 'Pending'}`}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: !isCurrent }}
-              accessibilityHint={isCurrent ? 'Double tap to advance to next step' : undefined}
-            >
-              <View style={styles.stateIcon}>
-                {isCompleted ? (
-                  <CheckCircle size={24} color={colors.status.success} />
-                ) : isCurrent ? (
-                  <Wrench size={24} color={colors.voltage} />
-                ) : (
-                  <View style={styles.stateInactive} />
-                )}
-              </View>
-              <View style={styles.stateInfo}>
-                <Text style={[styles.stateLabel, isCompleted && styles.stateLabelDone, isCurrent && styles.stateLabelActive]}>
-                  {state.label}
-                </Text>
-                <Text style={styles.stateSublabel}>{state.sublabel}</Text>
-              </View>
-              {isCurrent && <Text style={styles.tapHint}>TAP</Text>}
-            </TouchableOpacity>
+            <FadeInView key={state.id} delay={200 + index * 80}>
+              <AnimatedPressable
+                onPress={() => {
+                  if (isCurrent) {
+                    mediumHaptic();
+                    handleNext();
+                  }
+                }}
+                disabled={!isCurrent}
+                style={[
+                  styles.stateCard,
+                  isCompleted && styles.stateCompleted,
+                  isCurrent && styles.stateCurrent,
+                ]}
+                accessibilityLabel={`${state.label}. ${state.sublabel}. ${isCompleted ? 'Completed' : isCurrent ? 'Current step, tap to advance' : 'Pending'}`}
+                accessibilityState={{ disabled: !isCurrent }}
+                accessibilityHint={isCurrent ? 'Double tap to advance to next step' : undefined}
+              >
+                <View style={styles.stateIcon}>
+                  {isCompleted ? (
+                    <CheckCircle size={24} color={colors.status.success} />
+                  ) : isCurrent ? (
+                    <Wrench size={24} color={colors.voltage} />
+                  ) : (
+                    <View style={styles.stateInactive} />
+                  )}
+                </View>
+                <View style={styles.stateInfo}>
+                  <Text style={[styles.stateLabel, isCompleted && styles.stateLabelDone, isCurrent && styles.stateLabelActive]}>
+                    {state.label}
+                  </Text>
+                  <Text style={styles.stateSublabel}>{state.sublabel}</Text>
+                </View>
+                {isCurrent && <Text style={styles.tapHint}>TAP</Text>}
+              </AnimatedPressable>
+            </FadeInView>
           );
         })}
       </View>
 
       {/* Complete Button */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={handleNext}
+        <AnimatedPressable
+          onPress={() => {
+            if (currentIndex < STATES.length - 1) {
+              mediumHaptic();
+            } else {
+              successHaptic();
+            }
+            handleNext();
+          }}
           style={styles.nextButton}
           accessibilityLabel={currentIndex < STATES.length - 1 ? 'Advance to next step' : 'Complete job'}
-          accessibilityRole="button"
           accessibilityHint={currentIndex < STATES.length - 1 ? 'Moves to the next service step' : 'Completes the job and shows summary'}
         >
           <Text style={styles.nextText}>
             {currentIndex < STATES.length - 1 ? 'Next Step' : 'Complete Job'}
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );

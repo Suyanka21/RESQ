@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import { View, Text, StyleSheet, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Phone, MessageCircle, Mail, FileText } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { lightHaptic, mediumHaptic } from '@/utils/haptics';
 
 const OPTIONS = [
   { id: 'call', label: 'Call Support Line', sublabel: '+254 700 000 000', icon: Phone, action: 'tel:+254700000000' },
@@ -18,41 +20,48 @@ export default function ProviderSupportScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
+        <AnimatedPressable
+          onPress={() => {
+            lightHaptic();
+            router.back();
+          }}
           style={styles.backButton}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
         <Text style={styles.headerTitle}>Provider Support</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.subtitle}>Need help? We're here for you 24/7.</Text>
+        <FadeInView delay={100}>
+          <Text style={styles.subtitle}>Need help? We're here for you 24/7.</Text>
+        </FadeInView>
 
         <View style={styles.options}>
-          {OPTIONS.map((opt) => {
+          {OPTIONS.map((opt, index) => {
             const Icon = opt.icon;
             return (
-              <TouchableOpacity
-                key={opt.id}
-                onPress={() => opt.action && Linking.openURL(opt.action)}
-                accessibilityLabel={opt.label}
-                accessibilityRole="button"
-              >
-                <MetalSurface variant="extruded" radius="lg" style={styles.optionCard}>
-                  <View style={styles.optionIcon}>
-                    <Icon size={24} color={colors.voltage} />
-                  </View>
-                  <View style={styles.optionInfo}>
-                    <Text style={styles.optionLabel}>{opt.label}</Text>
-                    <Text style={styles.optionSublabel}>{opt.sublabel}</Text>
-                  </View>
-                </MetalSurface>
-              </TouchableOpacity>
+              <FadeInView key={opt.id} delay={150 + index * 80}>
+                <AnimatedPressable
+                  onPress={() => {
+                    mediumHaptic();
+                    if (opt.action) Linking.openURL(opt.action);
+                  }}
+                  accessibilityLabel={opt.label}
+                >
+                  <MetalSurface variant="extruded" radius="lg" style={styles.optionCard}>
+                    <View style={styles.optionIcon}>
+                      <Icon size={24} color={colors.voltage} />
+                    </View>
+                    <View style={styles.optionInfo}>
+                      <Text style={styles.optionLabel}>{opt.label}</Text>
+                      <Text style={styles.optionSublabel}>{opt.sublabel}</Text>
+                    </View>
+                  </MetalSurface>
+                </AnimatedPressable>
+              </FadeInView>
             );
           })}
         </View>

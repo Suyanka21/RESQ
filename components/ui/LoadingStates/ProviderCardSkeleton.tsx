@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { colors, spacing, borderRadius } from '@/theme';
+import { VoltageSpinner } from '@/components/animations';
 
 interface ProviderCardSkeletonProps {
   count?: number;
@@ -30,6 +31,9 @@ export default function ProviderCardSkeleton({ count = 3 }: ProviderCardSkeleton
 
   return (
     <View style={styles.container} accessibilityLabel="Loading providers" accessibilityRole="progressbar">
+      <View style={styles.spinnerContainer}>
+        <VoltageSpinner size={48} message="Finding providers..." />
+      </View>
       {Array.from({ length: count }).map((_, i) => (
         <Animated.View key={i} style={[styles.card, { opacity: pulseAnim }]}>
           <View style={styles.avatar} />
@@ -48,6 +52,10 @@ export default function ProviderCardSkeleton({ count = 3 }: ProviderCardSkeleton
 const styles = StyleSheet.create({
   container: {
     gap: spacing.md,
+  },
+  spinnerContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.md,
   },
   card: {
     flexDirection: 'row',

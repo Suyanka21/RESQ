@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Car } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
 
 interface EmptyVehiclesProps {
   onAddVehicle?: () => void;
@@ -10,22 +12,32 @@ interface EmptyVehiclesProps {
 export default function EmptyVehicles({ onAddVehicle }: EmptyVehiclesProps) {
   return (
     <View style={styles.container} accessibilityLabel="No vehicles added">
-      <View style={styles.iconContainer}>
-        <Car size={48} color={colors.service.towing} />
-      </View>
-      <Text style={styles.title}>No Vehicles</Text>
-      <Text style={styles.message}>
-        Add your vehicle for faster service. Vehicle details help providers prepare before arriving.
-      </Text>
+      <FadeInView delay={100}>
+        <View style={styles.iconContainer}>
+          <Car size={48} color={colors.service.towing} />
+        </View>
+      </FadeInView>
+      <FadeInView delay={200}>
+        <Text style={styles.title}>No Vehicles</Text>
+      </FadeInView>
+      <FadeInView delay={300}>
+        <Text style={styles.message}>
+          Add your vehicle for faster service. Vehicle details help providers prepare before arriving.
+        </Text>
+      </FadeInView>
       {onAddVehicle && (
-        <TouchableOpacity
-          onPress={onAddVehicle}
-          style={styles.ctaButton}
-          accessibilityLabel="Add a vehicle"
-          accessibilityRole="button"
-        >
-          <Text style={styles.ctaText}>Add Vehicle</Text>
-        </TouchableOpacity>
+        <FadeInView delay={400}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              onAddVehicle();
+            }}
+            style={styles.ctaButton}
+            accessibilityLabel="Add a vehicle"
+          >
+            <Text style={styles.ctaText}>Add Vehicle</Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
     </View>
   );

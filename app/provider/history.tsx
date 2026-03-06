@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, MapPin, Clock, CheckCircle } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius } from '@/theme';
@@ -7,6 +7,8 @@ import MetalSurface from '@/components/MetalSurface';
 import { HistoryItemSkeleton } from '@/components/ui/LoadingStates';
 import { EmptyHistory } from '@/components/ui/EmptyStates';
 import { GenericError } from '@/components/ui/ErrorStates';
+import { AnimatedPressable, FadeInView, PullToRefresh } from '@/components/animations';
+import { lightHaptic } from '@/utils/haptics';
 
 const MOCK_JOBS = [
   { id: '1', service: 'Towing', customer: 'John D.', date: 'Jan 30, 2026', amount: 4250, location: 'Westlands', duration: '45 min' },
@@ -28,29 +30,38 @@ export default function ProviderHistoryScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const renderJobItem = useCallback(({ item }: { item: typeof MOCK_JOBS[0] }) => (
-    <MetalSurface variant="extruded" radius="lg" style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={styles.serviceTag}>
-          <Text style={styles.serviceText}>{item.service}</Text>
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
+
+  const renderJobItem = useCallback(({ item, index }: { item: typeof MOCK_JOBS[0]; index: number }) => (
+    <FadeInView delay={index * 80}>
+      <MetalSurface variant="extruded" radius="lg" style={styles.card}>
+        <View style={styles.cardHeader}>
+          <View style={styles.serviceTag}>
+            <Text style={styles.serviceText}>{item.service}</Text>
+          </View>
+          <Text style={styles.amountText}>KES {item.amount.toLocaleString()}</Text>
         </View>
-        <Text style={styles.amountText}>KES {item.amount.toLocaleString()}</Text>
-      </View>
-      <Text style={styles.customerText}>{item.customer}</Text>
-      <View style={styles.infoRow}>
-        <MapPin size={12} color={colors.text.tertiary} />
-        <Text style={styles.infoText}>{item.location}</Text>
-        <Clock size={12} color={colors.text.tertiary} />
-        <Text style={styles.infoText}>{item.duration}</Text>
-      </View>
-      <View style={styles.footerRow}>
-        <Text style={styles.dateText}>{item.date}</Text>
-        <View style={styles.statusBadge}>
-          <CheckCircle size={12} color={colors.status.success} />
-          <Text style={styles.statusText}>Completed</Text>
+        <Text style={styles.customerText}>{item.customer}</Text>
+        <View style={styles.infoRow}>
+          <MapPin size={12} color={colors.text.tertiary} />
+          <Text style={styles.infoText}>{item.location}</Text>
+          <Clock size={12} color={colors.text.tertiary} />
+          <Text style={styles.infoText}>{item.duration}</Text>
         </View>
-      </View>
-    </MetalSurface>
+        <View style={styles.footerRow}>
+          <Text style={styles.dateText}>{item.date}</Text>
+          <View style={styles.statusBadge}>
+            <CheckCircle size={12} color={colors.status.success} />
+            <Text style={styles.statusText}>Completed</Text>
+          </View>
+        </View>
+      </MetalSurface>
+    </FadeInView>
   ), []);
 
   useEffect(() => {
@@ -62,14 +73,16 @@ export default function ProviderHistoryScreen() {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
+          <AnimatedPressable
+            onPress={() => {
+              lightHaptic();
+              router.back();
+            }}
             style={styles.backButton}
             accessibilityLabel="Go back"
-            accessibilityRole="button"
           >
             <ArrowLeft size={20} color={colors.text.primary} />
-          </TouchableOpacity>
+          </AnimatedPressable>
           <Text style={styles.headerTitle}>Job History</Text>
           <View style={{ width: 40 }} />
         </View>
@@ -93,14 +106,16 @@ export default function ProviderHistoryScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
+        <AnimatedPressable
+          onPress={() => {
+            lightHaptic();
+            router.back();
+          }}
           style={styles.backButton}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
         <Text style={styles.headerTitle}>Job History</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -108,16 +123,18 @@ export default function ProviderHistoryScreen() {
       {MOCK_JOBS.length === 0 ? (
         <EmptyHistory />
       ) : (
-        <FlatList
-          data={MOCK_JOBS}
-          keyExtractor={jobKeyExtractor}
-          contentContainerStyle={styles.list}
-          renderItem={renderJobItem}
-          getItemLayout={getJobItemLayout}
-          removeClippedSubviews
-          maxToRenderPerBatch={10}
-          windowSize={5}
-        />
+        <PullToRefresh refreshing={refreshing} onRefresh={handleRefresh}>
+          <FlatList
+            data={MOCK_JOBS}
+            keyExtractor={jobKeyExtractor}
+            contentContainerStyle={styles.list}
+            renderItem={renderJobItem}
+            getItemLayout={getJobItemLayout}
+            removeClippedSubviews
+            maxToRenderPerBatch={10}
+            windowSize={5}
+          />
+        </PullToRefresh>
       )}
     </View>
   );

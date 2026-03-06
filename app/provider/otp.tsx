@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +12,8 @@ import { ArrowLeft } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
 import { TOUCH_TARGET, announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic, successHaptic } from '@/utils/haptics';
 
 const OTP_LENGTH = 6;
 
@@ -69,21 +70,23 @@ export default function ProviderOTPScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.header}>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.back()}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">Verify Code</Text>
-        <Text style={styles.subtitle}>Enter the 6-digit verification code</Text>
+        <FadeInView delay={100}>
+          <Text style={styles.title} accessibilityRole="header">Verify Code</Text>
+        </FadeInView>
+        <FadeInView delay={200}>
+          <Text style={styles.subtitle}>Enter the 6-digit verification code</Text>
+        </FadeInView>
 
         <View style={styles.otpRow}>
           {otp.map((digit, index) => (
@@ -103,32 +106,35 @@ export default function ProviderOTPScreen() {
           ))}
         </View>
 
-        <TouchableOpacity
-          onPress={handleVerify}
+        <AnimatedPressable
+          onPress={() => {
+            successHaptic();
+            handleVerify();
+          }}
           disabled={!isComplete}
           style={[styles.verifyButton, !isComplete && styles.verifyButtonDisabled]}
           accessibilityLabel="Verify code"
-          accessibilityRole="button"
           accessibilityHint="Verifies the entered code and signs you in"
           accessibilityState={{ disabled: !isComplete }}
         >
           <Text style={[styles.verifyText, !isComplete && styles.verifyTextDisabled]}>
             Verify
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
 
-        <TouchableOpacity
+        <AnimatedPressable
           disabled={countdown > 0}
-          onPress={() => setCountdown(30)}
-          style={styles.resendButton}
+          onPress={() => {
+            mediumHaptic();
+            setCountdown(30);
+          }}
           accessibilityLabel={countdown > 0 ? `Resend code available in ${countdown} seconds` : 'Resend verification code'}
-          accessibilityRole="button"
           accessibilityState={{ disabled: countdown > 0 }}
         >
           <Text style={styles.resendText}>
             {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend Code'}
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </KeyboardAvoidingView>
   );

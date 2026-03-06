@@ -9,7 +9,7 @@ import MapPlaceholder from '@/components/MapPlaceholder';
 import MetalSurface from '@/components/MetalSurface';
 import { OfflineQueueBanner } from '@/components/ui/OfflineExperience';
 import { AnimatedPressable, GlassmorphicPanel } from '@/components/animations';
-import { lightHaptic, mediumHaptic } from '@/utils/haptics';
+import { lightHaptic } from '@/utils/haptics';
 
 export default function ProviderDashboardScreen() {
   const router = useRouter();

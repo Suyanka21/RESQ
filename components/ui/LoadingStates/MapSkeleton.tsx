@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { colors, spacing, borderRadius } from '@/theme';
+import { VoltageSpinner } from '@/components/animations';
 
 export default function MapSkeleton() {
   const pulseAnim = useRef(new Animated.Value(0.3)).current;
@@ -36,8 +37,7 @@ export default function MapSkeleton() {
 
         {/* Center pin placeholder */}
         <View style={styles.pinContainer}>
-          <View style={styles.pin} />
-          <View style={styles.pinShadow} />
+          <VoltageSpinner size={40} />
         </View>
       </Animated.View>
 

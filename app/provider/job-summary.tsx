@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CheckCircle, Share2 } from 'lucide-react-native';
+import { Share2 } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
-import MetalSurface from '@/components/MetalSurface';
 import { announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView, GlassmorphicPanel, SuccessAnimation } from '@/components/animations';
+import { mediumHaptic, successHaptic } from '@/utils/haptics';
 
 export default function ProviderJobSummaryScreen() {
   const router = useRouter();
@@ -21,16 +22,20 @@ export default function ProviderJobSummaryScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Success Icon */}
-        <View style={styles.checkContainer}>
-          <View style={styles.checkGlow} />
-          <CheckCircle size={72} color={colors.status.success} />
-        </View>
+        <FadeInView delay={100}>
+          <SuccessAnimation size={80} />
+        </FadeInView>
 
-        <Text style={styles.title} accessibilityRole="header">Job Complete</Text>
-        <Text style={styles.subtitle}>Digital receipt generated</Text>
+        <FadeInView delay={200}>
+          <Text style={styles.title} accessibilityRole="header">Job Complete</Text>
+        </FadeInView>
+        <FadeInView delay={300}>
+          <Text style={styles.subtitle}>Digital receipt generated</Text>
+        </FadeInView>
 
         {/* Receipt Card */}
-        <MetalSurface variant="glass" radius="xl" style={styles.receiptCard} accessible accessibilityLabel="Receipt. Service: Towing. Customer: John Doe. Location: Westlands, Nairobi. Duration: 45 minutes. Date: January 30, 2026. Base Fare: KES 5,000. Platform Fee: KES 750. Your Earnings: KES 4,250.">
+        <FadeInView delay={400}>
+        <GlassmorphicPanel intensity="medium" radius="xl" style={styles.receiptCard} accessible accessibilityLabel="Receipt. Service: Towing. Customer: John Doe. Location: Westlands, Nairobi. Duration: 45 minutes. Date: January 30, 2026. Base Fare: KES 5,000. Platform Fee: KES 750. Your Earnings: KES 4,250.">
           <Text style={styles.receiptHeader}>RECEIPT</Text>
           <View style={styles.receiptDivider} />
 
@@ -72,30 +77,33 @@ export default function ProviderJobSummaryScreen() {
             <Text style={styles.earningsLabel}>Your Earnings</Text>
             <Text style={styles.earningsValue}>KES 4,250</Text>
           </View>
-        </MetalSurface>
+        </GlassmorphicPanel>
+        </FadeInView>
 
         {/* Share Button */}
-        <TouchableOpacity
+        <AnimatedPressable
+          onPress={() => mediumHaptic()}
           style={styles.shareButton}
           accessibilityLabel="Share receipt"
-          accessibilityRole="button"
           accessibilityHint="Opens sharing options for the digital receipt"
         >
           <Share2 size={16} color={colors.voltage} />
           <Text style={styles.shareText}>Share Receipt</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={handleFinish}
+        <AnimatedPressable
+          onPress={() => {
+            successHaptic();
+            handleFinish();
+          }}
           style={styles.finishButton}
           accessibilityLabel="Back to dashboard"
-          accessibilityRole="button"
           accessibilityHint="Returns to the provider dashboard"
         >
           <Text style={styles.finishText}>Back to Dashboard</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );

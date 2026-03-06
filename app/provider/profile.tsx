@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Shield, Star, Award, Settings, HelpCircle, LogOut, ChevronRight } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
@@ -9,6 +9,8 @@ import { useProviderStore } from '@/stores/providerStore';
 import { ProfileSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
 import { TOUCH_TARGET, announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { lightHaptic, mediumHaptic } from '@/utils/haptics';
 
 const MENU_ITEMS = [
   { id: 'settings', label: 'Account Settings', icon: Settings },
@@ -55,21 +57,20 @@ export default function ProviderProfileScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.back()}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
         <Text style={styles.headerTitle} accessibilityRole="header">Profile</Text>
         <View style={{ width: 40 }} />
       </View>
 
       {/* Profile Header */}
+      <FadeInView delay={100}>
       <View style={styles.profileHeader}>
         <View
           style={styles.avatar}
@@ -97,6 +98,7 @@ export default function ProviderProfileScreen() {
           </View>
         </View>
       </View>
+      </FadeInView>
 
       {/* Stats */}
       <View style={styles.statsRow}>
@@ -115,42 +117,50 @@ export default function ProviderProfileScreen() {
       </View>
 
       {/* Menu */}
+      <FadeInView delay={300}>
       <View style={styles.menu}>
         {MENU_ITEMS.map((item) => {
           const Icon = item.icon;
           return (
-            <TouchableOpacity
+            <AnimatedPressable
               key={item.id}
-              onPress={() => item.id === 'support' && router.push('/provider/support')}
+              onPress={() => {
+                lightHaptic();
+                if (item.id === 'support') router.push('/provider/support');
+              }}
               style={styles.menuItem}
               accessibilityLabel={item.label}
-              accessibilityRole="button"
               accessibilityHint={item.id === 'support' ? 'Opens help and support page' : 'Opens account settings'}
             >
               <Icon size={20} color={colors.voltage} />
               <Text style={styles.menuLabel}>{item.label}</Text>
               <ChevronRight size={18} color={colors.text.tertiary} />
-            </TouchableOpacity>
+            </AnimatedPressable>
           );
         })}
       </View>
+      </FadeInView>
 
       {/* Switch to Customer */}
-      <TouchableOpacity
-        onPress={() => router.replace('/(tabs)')}
+      <FadeInView delay={400}>
+      <AnimatedPressable
+        onPress={() => {
+          mediumHaptic();
+          router.replace('/(tabs)');
+        }}
         style={styles.switchButton}
         accessibilityLabel="Switch to customer mode"
-        accessibilityRole="button"
         accessibilityHint="Switches from provider view to customer view"
       >
         <Text style={styles.switchText}>Switch to Customer Mode</Text>
-      </TouchableOpacity>
+      </AnimatedPressable>
+      </FadeInView>
 
       {/* Logout */}
-      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton} accessibilityLabel="Log out" accessibilityRole="button" accessibilityHint="Signs you out and returns to the landing page">
+      <AnimatedPressable onPress={handleLogout} style={styles.logoutButton} accessibilityLabel="Log out" accessibilityHint="Signs you out and returns to the landing page">
         <LogOut size={18} color={colors.status.error} />
         <Text style={styles.logoutText}>Log Out</Text>
-      </TouchableOpacity>
+      </AnimatedPressable>
     </ScrollView>
   );
 }

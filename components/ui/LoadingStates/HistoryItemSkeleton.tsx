@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { colors, spacing, borderRadius } from '@/theme';
+import { VoltageSpinner } from '@/components/animations';
 
 interface HistoryItemSkeletonProps {
   count?: number;
@@ -30,6 +31,9 @@ export default function HistoryItemSkeleton({ count = 4 }: HistoryItemSkeletonPr
 
   return (
     <View style={styles.container} accessibilityLabel="Loading history" accessibilityRole="progressbar">
+      <View style={styles.spinnerContainer}>
+        <VoltageSpinner size={48} message="Loading history..." />
+      </View>
       {Array.from({ length: count }).map((_, i) => (
         <Animated.View key={i} style={[styles.card, { opacity: pulseAnim }]}>
           {/* Header row */}
@@ -62,6 +66,10 @@ export default function HistoryItemSkeleton({ count = 4 }: HistoryItemSkeletonPr
 const styles = StyleSheet.create({
   container: {
     gap: spacing.md,
+  },
+  spinnerContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.md,
   },
   card: {
     backgroundColor: colors.background.secondary,

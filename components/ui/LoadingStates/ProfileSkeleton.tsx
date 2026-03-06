@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { colors, spacing, borderRadius } from '@/theme';
+import { VoltageSpinner } from '@/components/animations';
 
 export default function ProfileSkeleton() {
   const pulseAnim = useRef(new Animated.Value(0.3)).current;
@@ -30,6 +31,10 @@ export default function ProfileSkeleton() {
       accessibilityLabel="Loading profile"
       accessibilityRole="progressbar"
     >
+      {/* Spinner */}
+      <View style={styles.spinnerContainer}>
+        <VoltageSpinner size={48} message="Loading profile..." />
+      </View>
       {/* Avatar */}
       <View style={styles.header}>
         <View style={styles.avatar} />
@@ -56,6 +61,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.primary,
     paddingBottom: spacing.xxl,
+  },
+  spinnerContainer: {
+    alignItems: 'center',
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.md,
   },
   header: {
     alignItems: 'center',

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { colors, spacing, borderRadius } from '@/theme';
+import { VoltageSpinner } from '@/components/animations';
 
 interface TransactionSkeletonProps {
   count?: number;
@@ -30,6 +31,9 @@ export default function TransactionSkeleton({ count = 4 }: TransactionSkeletonPr
 
   return (
     <View style={styles.container} accessibilityLabel="Loading transactions" accessibilityRole="progressbar">
+      <View style={styles.spinnerContainer}>
+        <VoltageSpinner size={48} message="Loading transactions..." />
+      </View>
       {/* Balance card skeleton */}
       <Animated.View style={[styles.balanceCard, { opacity: pulseAnim }]}>
         <View style={styles.balanceLabel} />
@@ -55,6 +59,10 @@ export default function TransactionSkeleton({ count = 4 }: TransactionSkeletonPr
 const styles = StyleSheet.create({
   container: {
     gap: spacing.md,
+  },
+  spinnerContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.md,
   },
   balanceCard: {
     backgroundColor: colors.background.secondary,
