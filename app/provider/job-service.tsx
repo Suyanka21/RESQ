@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { CheckCircle, Wrench, Clock } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { announceForAccessibility } from '@/utils/accessibility';
 
 type ServiceState = 'arrived' | 'diagnosing' | 'in_service' | 'completing';
 
@@ -20,10 +21,17 @@ export default function ProviderJobServiceScreen() {
 
   const currentIndex = STATES.findIndex((s) => s.id === currentState);
 
+  React.useEffect(() => {
+    announceForAccessibility(`Job execution started. Current step: ${STATES[currentIndex].label}. ${STATES[currentIndex].sublabel}.`);
+  }, []);
+
   const handleNext = () => {
     if (currentIndex < STATES.length - 1) {
-      setCurrentState(STATES[currentIndex + 1].id);
+      const nextState = STATES[currentIndex + 1];
+      setCurrentState(nextState.id);
+      announceForAccessibility(`Step completed. Now: ${nextState.label}. ${nextState.sublabel}.`);
     } else {
+      announceForAccessibility('Job complete. Navigating to job summary.');
       router.replace('/provider/job-summary');
     }
   };
@@ -31,8 +39,8 @@ export default function ProviderJobServiceScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Job Execution</Text>
-        <View style={styles.timerPill}>
+        <Text style={styles.title} accessibilityRole="header">Job Execution</Text>
+        <View style={styles.timerPill} accessible accessibilityLabel="Job timer: 12 minutes 34 seconds" accessibilityLiveRegion="polite">
           <Clock size={14} color={colors.voltage} />
           <Text style={styles.timerText}>00:12:34</Text>
         </View>
@@ -40,8 +48,8 @@ export default function ProviderJobServiceScreen() {
 
       {/* Customer Info */}
       <MetalSurface variant="glass" radius="lg" style={styles.customerCard}>
-        <View style={styles.customerRow}>
-          <View style={styles.avatar}>
+        <View style={styles.customerRow} accessible accessibilityLabel="Customer: John Doe. Towing service at Westlands, Nairobi">
+          <View style={styles.avatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             <Text style={styles.avatarText}>J</Text>
           </View>
           <View>
@@ -66,8 +74,10 @@ export default function ProviderJobServiceScreen() {
                 isCompleted && styles.stateCompleted,
                 isCurrent && styles.stateCurrent,
               ]}
-              accessibilityLabel={state.label}
+              accessibilityLabel={`${state.label}. ${state.sublabel}. ${isCompleted ? 'Completed' : isCurrent ? 'Current step, tap to advance' : 'Pending'}`}
               accessibilityRole="button"
+              accessibilityState={{ disabled: !isCurrent }}
+              accessibilityHint={isCurrent ? 'Double tap to advance to next step' : undefined}
             >
               <View style={styles.stateIcon}>
                 {isCompleted ? (
@@ -95,8 +105,9 @@ export default function ProviderJobServiceScreen() {
         <TouchableOpacity
           onPress={handleNext}
           style={styles.nextButton}
-          accessibilityLabel={currentIndex < STATES.length - 1 ? 'Next step' : 'Complete job'}
+          accessibilityLabel={currentIndex < STATES.length - 1 ? 'Advance to next step' : 'Complete job'}
           accessibilityRole="button"
+          accessibilityHint={currentIndex < STATES.length - 1 ? 'Moves to the next service step' : 'Completes the job and shows summary'}
         >
           <Text style={styles.nextText}>
             {currentIndex < STATES.length - 1 ? 'Next Step' : 'Complete Job'}

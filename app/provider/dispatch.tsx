@@ -121,9 +121,9 @@ export default function DispatchScreen() {
             <TouchableOpacity
               onPress={handleAccept}
               style={styles.acceptButton}
-                  accessibilityLabel="Accept towing job for KES 5,000"
-                  accessibilityRole="button"
-                  accessibilityHint="Accepts this job and navigates to pickup location"
+              accessibilityLabel="Accept towing job for KES 5,000"
+              accessibilityRole="button"
+              accessibilityHint="Accepts this job and navigates to pickup location"
             >
               <Text style={styles.acceptText}>Accept</Text>
             </TouchableOpacity>
@@ -131,9 +131,9 @@ export default function DispatchScreen() {
           <TouchableOpacity
             onPress={handleDecline}
             style={styles.declineButton}
-              accessibilityLabel="Decline job"
-              accessibilityRole="button"
-              accessibilityHint="Declines this job and returns to dashboard"
+            accessibilityLabel="Decline job"
+            accessibilityRole="button"
+            accessibilityHint="Declines this job and returns to dashboard"
           >
             <Text style={styles.declineText}>Decline</Text>
           </TouchableOpacity>

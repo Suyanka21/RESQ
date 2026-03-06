@@ -12,8 +12,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   AccessibilityInfo,
-  Platform,
-  UIManager,
 } from 'react-native';
 
 // =============================================================================

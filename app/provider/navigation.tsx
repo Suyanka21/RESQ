@@ -7,16 +7,24 @@ import MapPlaceholder from '@/components/MapPlaceholder';
 import MetalSurface from '@/components/MetalSurface';
 import { MapSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
+import { announceForAccessibility, useReducedMotion } from '@/utils/accessibility';
 
 export default function ProviderNavigationScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1200);
+    const timer = setTimeout(() => setIsLoading(false), prefersReducedMotion ? 0 : 1200);
     return () => clearTimeout(timer);
-  }, []);
+  }, [prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      announceForAccessibility('Navigating to customer. Head North on Waiyaki Way. 1.2 kilometers, 3 minutes.');
+    }
+  }, [isLoading]);
 
   if (isLoading) {
     return <MapSkeleton />;
@@ -43,10 +51,10 @@ export default function ProviderNavigationScreen() {
       <View style={styles.navOverlay}>
         <MetalSurface variant="glass" radius="xl" style={styles.navCard}>
           <View style={styles.navRow}>
-            <NavIcon size={24} color={colors.voltage} />
+            <NavIcon size={24} color={colors.voltage} accessibilityElementsHidden />
             <View style={styles.navInfo}>
-              <Text style={styles.navDirection}>Head North on Waiyaki Way</Text>
-              <Text style={styles.navDistance}>1.2 km - 3 min</Text>
+              <Text style={styles.navDirection} accessibilityRole="header">Head North on Waiyaki Way</Text>
+              <Text style={styles.navDistance} accessibilityLiveRegion="polite">1.2 km - 3 min</Text>
             </View>
           </View>
         </MetalSurface>
@@ -58,11 +66,16 @@ export default function ProviderNavigationScreen() {
 
         {/* Customer Info */}
         <View style={styles.customerRow}>
-          <View style={styles.customerAvatar}>
+          <View
+            style={styles.customerAvatar}
+            accessibilityLabel="Customer avatar"
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
             <Text style={styles.avatarText}>J</Text>
           </View>
           <View style={styles.customerInfo}>
-            <Text style={styles.customerName}>John Doe</Text>
+            <Text style={styles.customerName} accessibilityRole="text">John Doe</Text>
             <View style={styles.locationRow}>
               <MapPin size={12} color={colors.text.tertiary} />
               <Text style={styles.locationText}>Westlands, Nairobi</Text>
@@ -70,8 +83,9 @@ export default function ProviderNavigationScreen() {
           </View>
           <TouchableOpacity
             style={styles.callButton}
-            accessibilityLabel="Call customer"
+            accessibilityLabel="Call customer John Doe"
             accessibilityRole="button"
+            accessibilityHint="Opens phone dialer to call the customer"
           >
             <Phone size={18} color={colors.text.onBrand} />
           </TouchableOpacity>
@@ -79,16 +93,16 @@ export default function ProviderNavigationScreen() {
 
         {/* ETA */}
         <MetalSurface variant="glass" radius="lg" style={styles.etaCard}>
-          <View style={styles.etaRow}>
-            <View>
+          <View style={styles.etaRow} accessibilityRole="summary">
+            <View accessible accessibilityLabel="Estimated time of arrival: 8 minutes">
               <Text style={styles.etaLabel}>ETA</Text>
-              <Text style={styles.etaValue}>8 MIN</Text>
+              <Text style={styles.etaValue} accessibilityLiveRegion="polite">8 MIN</Text>
             </View>
-            <View>
+            <View accessible accessibilityLabel="Distance: 3.2 kilometers">
               <Text style={styles.etaLabel}>DISTANCE</Text>
               <Text style={styles.etaValue}>3.2 KM</Text>
             </View>
-            <View>
+            <View accessible accessibilityLabel="Earning: KES 5,000">
               <Text style={styles.etaLabel}>EARNING</Text>
               <Text style={[styles.etaValue, { color: colors.status.success }]}>KES 5,000</Text>
             </View>
@@ -99,8 +113,9 @@ export default function ProviderNavigationScreen() {
         <TouchableOpacity
           onPress={() => router.replace('/provider/job-service')}
           style={styles.arrivedButton}
-          accessibilityLabel="I have arrived"
+          accessibilityLabel="I have arrived at the customer location"
           accessibilityRole="button"
+          accessibilityHint="Confirms your arrival and starts the service"
         >
           <Text style={styles.arrivedText}>I Have Arrived</Text>
         </TouchableOpacity>

@@ -7,6 +7,7 @@ import MetalSurface from '@/components/MetalSurface';
 import { TransactionSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
 import { NoTransactions } from '@/components/ui/EmptyStates';
+import { TOUCH_TARGET, announceForAccessibility } from '@/utils/accessibility';
 
 const MOCK_EARNINGS = [
   { id: '1', date: 'Today', jobs: 3, amount: 12500 },
@@ -29,7 +30,11 @@ export default function ProviderEarningsScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const renderEarningItem = useCallback(({ item }: { item: typeof MOCK_EARNINGS[0] }) => (
-    <View style={styles.dayRow}>
+    <View
+      style={styles.dayRow}
+      accessible
+      accessibilityLabel={`${item.date}. ${item.jobs} jobs. KES ${item.amount.toLocaleString()}`}
+    >
       <View style={styles.dayInfo}>
         <Calendar size={16} color={colors.text.tertiary} />
         <View>
@@ -46,6 +51,12 @@ export default function ProviderEarningsScreen() {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (!isLoading) {
+      announceForAccessibility('Earnings loaded. This week: KES 54,750. 14 jobs completed.');
+    }
+  }, [isLoading]);
+
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -53,12 +64,14 @@ export default function ProviderEarningsScreen() {
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
+            hitSlop={TOUCH_TARGET.HIT_SLOP}
             accessibilityLabel="Go back"
             accessibilityRole="button"
+            accessibilityHint="Returns to previous screen"
           >
             <ArrowLeft size={20} color={colors.text.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Earnings</Text>
+          <Text style={styles.headerTitle} accessibilityRole="header">Earnings</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={{ paddingHorizontal: spacing.lg }}>
@@ -85,12 +98,14 @@ export default function ProviderEarningsScreen() {
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
+            hitSlop={TOUCH_TARGET.HIT_SLOP}
             accessibilityLabel="Go back"
             accessibilityRole="button"
+            accessibilityHint="Returns to previous screen"
           >
             <ArrowLeft size={20} color={colors.text.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Earnings</Text>
+          <Text style={styles.headerTitle} accessibilityRole="header">Earnings</Text>
           <View style={{ width: 40 }} />
         </View>
         <NoTransactions onRequestService={() => router.replace('/provider/dashboard')} />
@@ -104,17 +119,19 @@ export default function ProviderEarningsScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Earnings</Text>
+        <Text style={styles.headerTitle} accessibilityRole="header">Earnings</Text>
         <View style={{ width: 40 }} />
       </View>
 
       {/* Total Earnings - Oversized Typography (48px) */}
-      <View style={styles.totalSection}>
+      <View style={styles.totalSection} accessible accessibilityLabel="This week's earnings: KES 54,750. Up 12 percent from last week">
         <Text style={styles.totalLabel}>THIS WEEK</Text>
         <Text style={styles.totalAmount}>KES 54,750</Text>
         <View style={styles.trendRow}>
@@ -125,15 +142,15 @@ export default function ProviderEarningsScreen() {
 
       {/* Stats Row */}
       <View style={styles.statsRow}>
-        <MetalSurface variant="extruded" radius="lg" style={styles.statCard}>
+        <MetalSurface variant="extruded" radius="lg" style={styles.statCard} accessible accessibilityLabel="14 jobs done">
           <Text style={styles.statValue}>14</Text>
           <Text style={styles.statLabel}>Jobs Done</Text>
         </MetalSurface>
-        <MetalSurface variant="extruded" radius="lg" style={styles.statCard}>
+        <MetalSurface variant="extruded" radius="lg" style={styles.statCard} accessible accessibilityLabel="Average rating: 4.9 stars">
           <Text style={styles.statValue}>4.9</Text>
           <Text style={styles.statLabel}>Avg Rating</Text>
         </MetalSurface>
-        <MetalSurface variant="extruded" radius="lg" style={styles.statCard}>
+        <MetalSurface variant="extruded" radius="lg" style={styles.statCard} accessible accessibilityLabel="98 percent acceptance rate">
           <Text style={styles.statValue}>98%</Text>
           <Text style={styles.statLabel}>Accept Rate</Text>
         </MetalSurface>
@@ -158,6 +175,7 @@ export default function ProviderEarningsScreen() {
           style={styles.payoutButton}
           accessibilityLabel="Request payout"
           accessibilityRole="button"
+          accessibilityHint="Initiates a payout transfer to your mobile money account"
         >
           <Text style={styles.payoutText}>Request Payout</Text>
         </TouchableOpacity>

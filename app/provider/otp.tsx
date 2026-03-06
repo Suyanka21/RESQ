@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
+import { TOUCH_TARGET, announceForAccessibility } from '@/utils/accessibility';
 
 const OTP_LENGTH = 6;
 
@@ -21,6 +22,10 @@ export default function ProviderOTPScreen() {
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [countdown, setCountdown] = useState(30);
   const inputRefs = useRef<(TextInput | null)[]>([]);
+
+  useEffect(() => {
+    announceForAccessibility('Enter the 6-digit verification code sent to your phone');
+  }, []);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -67,15 +72,17 @@ export default function ProviderOTPScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Verify Code</Text>
+        <Text style={styles.title} accessibilityRole="header">Verify Code</Text>
         <Text style={styles.subtitle}>Enter the 6-digit verification code</Text>
 
         <View style={styles.otpRow}>
@@ -89,7 +96,8 @@ export default function ProviderOTPScreen() {
                 onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
                 keyboardType="number-pad"
                 maxLength={1}
-                accessibilityLabel={`OTP digit ${index + 1}`}
+                accessibilityLabel={`OTP digit ${index + 1} of ${OTP_LENGTH}`}
+                accessibilityHint={`Enter digit ${index + 1} of the verification code`}
               />
             </View>
           ))}
@@ -99,15 +107,24 @@ export default function ProviderOTPScreen() {
           onPress={handleVerify}
           disabled={!isComplete}
           style={[styles.verifyButton, !isComplete && styles.verifyButtonDisabled]}
-          accessibilityLabel="Verify"
+          accessibilityLabel="Verify code"
           accessibilityRole="button"
+          accessibilityHint="Verifies the entered code and signs you in"
+          accessibilityState={{ disabled: !isComplete }}
         >
           <Text style={[styles.verifyText, !isComplete && styles.verifyTextDisabled]}>
             Verify
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity disabled={countdown > 0} onPress={() => setCountdown(30)}>
+        <TouchableOpacity
+          disabled={countdown > 0}
+          onPress={() => setCountdown(30)}
+          style={styles.resendButton}
+          accessibilityLabel={countdown > 0 ? `Resend code available in ${countdown} seconds` : 'Resend verification code'}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: countdown > 0 }}
+        >
           <Text style={styles.resendText}>
             {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend Code'}
           </Text>
@@ -147,5 +164,6 @@ const styles = StyleSheet.create({
   verifyButtonDisabled: { backgroundColor: colors.interactive.disabled, shadowOpacity: 0 },
   verifyText: { color: colors.text.onBrand, fontSize: typography.fontSize.base, fontWeight: typography.fontWeight.bold, textTransform: 'uppercase', letterSpacing: 3 },
   verifyTextDisabled: { color: colors.text.disabled },
+  resendButton: { minHeight: TOUCH_TARGET.MIN, justifyContent: 'center', alignItems: 'center' },
   resendText: { color: colors.text.secondary, fontSize: typography.fontSize.sm },
 });
