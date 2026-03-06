@@ -4,10 +4,13 @@ import { useRouter } from 'expo-router';
 import Svg, { Polygon, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { colors, typography, spacing } from '@/theme';
 import { useReducedMotion } from '@/utils/accessibility';
+import { useOnboardingStore } from '@/stores/onboardingStore';
 
 export default function SplashScreen() {
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
+  const hasCompletedOnboarding = useOnboardingStore((s) => s.hasCompletedOnboarding);
+  const isOnboardingLoaded = useOnboardingStore((s) => s.isOnboardingLoaded);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const textFade = useRef(new Animated.Value(0)).current;
@@ -22,7 +25,11 @@ export default function SplashScreen() {
       pulseAnim.setValue(0.5); // Static glow
 
       const navTimer = setTimeout(() => {
-        router.replace('/auth/landing');
+        if (isOnboardingLoaded && !hasCompletedOnboarding) {
+          router.replace('/onboarding/welcome');
+        } else {
+          router.replace('/auth/landing');
+        }
       }, 1500); // Shorter wait without animations
 
       return () => clearTimeout(navTimer);
@@ -66,7 +73,11 @@ export default function SplashScreen() {
     }, 1000);
 
     const navTimer = setTimeout(() => {
-      router.replace('/auth/landing');
+      if (isOnboardingLoaded && !hasCompletedOnboarding) {
+        router.replace('/onboarding/welcome');
+      } else {
+        router.replace('/auth/landing');
+      }
     }, 3000);
 
     return () => {

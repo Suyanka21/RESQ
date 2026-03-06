@@ -16,6 +16,7 @@ import MetalSurface from '@/components/MetalSurface';
 import { useAuthStore } from '@/stores/authStore';
 import { ProfileSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
+import { ContextualTooltip } from '@/components/onboarding';
 import { AnimatedPressable, FadeInView } from '@/components/animations';
 import { mediumHaptic, errorHaptic, lightHaptic } from '@/utils/haptics';
 
@@ -24,6 +25,7 @@ const MENU_ITEMS = [
   { id: 'payment', label: 'Payment Methods', icon: CreditCard, route: '/customer/add-payment' },
   { id: 'safety', label: 'Safety & Security', icon: Shield, route: null },
   { id: 'notifications', label: 'Notifications', icon: Bell, route: null },
+  { id: 'quickstart', label: 'Quick Start Guide', icon: HelpCircle, route: '/customer/quick-start' },
   { id: 'help', label: 'Help & Support', icon: HelpCircle, route: '/customer/support' },
 ];
 
@@ -61,9 +63,16 @@ export default function ProfileScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Profile Header */}
       <View style={styles.header}>
-        <View style={styles.avatar}>
-          <User size={32} color={colors.voltage} />
-        </View>
+        <ContextualTooltip
+          id="profile"
+          message="Save your vehicles and medical info for faster service requests."
+          arrowPosition="top"
+          delay={600}
+        >
+          <View style={styles.avatar}>
+            <User size={32} color={colors.voltage} />
+          </View>
+        </ContextualTooltip>
         <Text style={styles.name}>{user?.name || 'John Doe'}</Text>
         <Text style={styles.phone}>+254 {user?.phone || '712 345 678'}</Text>
       </View>

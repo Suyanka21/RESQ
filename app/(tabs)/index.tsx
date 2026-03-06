@@ -19,6 +19,7 @@ import MetalSurface from '@/components/MetalSurface';
 import { ServiceCardSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
 import { OfflineQueueBanner } from '@/components/ui/OfflineExperience';
+import { ContextualTooltip } from '@/components/onboarding';
 import { TOUCH_TARGET } from '@/utils/accessibility';
 import { AnimatedPressable, FadeInView, GlassmorphicPanel } from '@/components/animations';
 import { mediumHaptic, heavyHaptic } from '@/utils/haptics';
@@ -86,14 +87,28 @@ export default function DashboardScreen() {
         <GlassmorphicPanel intensity="medium" radius="xxl" style={styles.panel}>
           {/* SOS Button */}
           <View style={styles.sosContainer}>
-            <SOSReactorButton onPress={handleSOS} />
+            <ContextualTooltip
+              id="sos_button"
+              message="Tap for immediate emergency help. This dispatches the nearest medical responder."
+              arrowPosition="top"
+              offsetX={-20}
+            >
+              <SOSReactorButton onPress={handleSOS} />
+            </ContextualTooltip>
           </View>
 
           <OfflineQueueBanner queuedCount={offlineQueueCount} onPress={() => {}} />
 
           <View style={styles.panelContent}>
-            <Text style={styles.sectionTitle}>Deploy Assistance</Text>
-            <Text style={styles.sectionSubtitle}>Select required service unit</Text>
+            <ContextualTooltip
+              id="service_icons"
+              message="Select the service you need. Choose from towing, battery, medical, fuel, tire, or diagnostics."
+              arrowPosition="top"
+              delay={1500}
+            >
+              <Text style={styles.sectionTitle}>Deploy Assistance</Text>
+              <Text style={styles.sectionSubtitle}>Select required service unit</Text>
+            </ContextualTooltip>
 
             {/* Service Grid */}
             {isLoading ? (

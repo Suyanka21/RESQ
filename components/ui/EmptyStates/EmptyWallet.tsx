@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Clock } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { AnimatedPressable, FadeInView } from '@/components/animations';
 import { mediumHaptic } from '@/utils/haptics';
@@ -16,11 +17,11 @@ export default function EmptyWallet({ onAddPayment }: EmptyWalletProps) {
         <EmptyWalletIllustration size={120} />
       </FadeInView>
       <FadeInView delay={200}>
-        <Text style={styles.title}>No Transactions</Text>
+        <Text style={styles.title}>No Payment Methods</Text>
       </FadeInView>
       <FadeInView delay={300}>
         <Text style={styles.message}>
-          Add M-Pesa to start saving. Your transaction history will appear here.
+          Add M-Pesa for instant, cashless payments. No more carrying cash during emergencies.
         </Text>
       </FadeInView>
       {onAddPayment && (
@@ -32,11 +33,18 @@ export default function EmptyWallet({ onAddPayment }: EmptyWalletProps) {
             }}
             style={styles.ctaButton}
             accessibilityLabel="Add M-Pesa payment method"
+            accessibilityHint="Opens the M-Pesa setup flow"
           >
-            <Text style={styles.ctaText}>Add M-Pesa</Text>
+            <Text style={styles.ctaText}>Add M-Pesa in 30 Seconds</Text>
           </AnimatedPressable>
         </FadeInView>
       )}
+      <FadeInView delay={500}>
+        <View style={styles.hintContainer}>
+          <Clock size={14} color={colors.text.tertiary} />
+          <Text style={styles.hintText}>Quick & secure setup</Text>
+        </View>
+      </FadeInView>
     </View>
   );
 }
@@ -75,5 +83,15 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeight.bold,
     textTransform: 'uppercase',
     letterSpacing: 2,
+  },
+  hintContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.lg,
+  },
+  hintText: {
+    color: colors.text.tertiary,
+    fontSize: typography.fontSize.xs,
   },
 });

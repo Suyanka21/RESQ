@@ -6,6 +6,7 @@ import MetalSurface from '@/components/MetalSurface';
 import { TransactionSkeleton } from '@/components/ui/LoadingStates';
 import { EmptyWallet } from '@/components/ui/EmptyStates';
 import { GenericError } from '@/components/ui/ErrorStates';
+import { ContextualTooltip } from '@/components/onboarding';
 import { AnimatedPressable, FadeInView, GlassmorphicPanel } from '@/components/animations';
 import { mediumHaptic, lightHaptic } from '@/utils/haptics';
 
@@ -100,6 +101,12 @@ export default function WalletScreen() {
 
       {/* Balance Card */}
       <FadeInView delay={100}>
+      <ContextualTooltip
+        id="wallet"
+        message="Add M-Pesa for instant payments. No cash needed during emergencies."
+        arrowPosition="top"
+        delay={800}
+      >
       <GlassmorphicPanel intensity="medium" radius="xl" style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Available Balance</Text>
         <Text style={styles.balanceAmount}>KES 3,500</Text>
@@ -114,6 +121,7 @@ export default function WalletScreen() {
           </AnimatedPressable>
         </View>
       </GlassmorphicPanel>
+      </ContextualTooltip>
       </FadeInView>
 
       {/* Payment Methods */}
