@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { colors, spacing, borderRadius } from '@/theme';
+import { VoltageSpinner } from '@/components/animations';
 
 interface ServiceCardSkeletonProps {
   count?: number;
@@ -29,18 +30,30 @@ export default function ServiceCardSkeleton({ count = 6 }: ServiceCardSkeletonPr
   }, [pulseAnim]);
 
   return (
-    <View style={styles.grid} accessibilityLabel="Loading services" accessibilityRole="progressbar">
+    <View style={styles.container} accessibilityLabel="Loading services" accessibilityRole="progressbar">
+      <View style={styles.spinnerContainer}>
+        <VoltageSpinner size={48} message="Loading services..." />
+      </View>
+      <View style={styles.grid}>
       {Array.from({ length: count }).map((_, i) => (
         <Animated.View key={i} style={[styles.card, { opacity: pulseAnim }]}>
           <View style={styles.iconPlaceholder} />
           <View style={styles.labelPlaceholder} />
         </Animated.View>
       ))}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    gap: spacing.md,
+  },
+  spinnerContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

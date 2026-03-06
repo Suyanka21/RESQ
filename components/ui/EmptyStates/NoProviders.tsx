@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { MapPinOff } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
 
 interface NoProvidersProps {
   onTryAnother?: () => void;
@@ -11,32 +13,46 @@ interface NoProvidersProps {
 export default function NoProviders({ onTryAnother, onCheckLater }: NoProvidersProps) {
   return (
     <View style={styles.container} accessibilityLabel="No providers available">
-      <View style={styles.iconContainer}>
-        <MapPinOff size={48} color={colors.service.towing} />
-      </View>
-      <Text style={styles.title}>No Providers Available</Text>
-      <Text style={styles.message}>
-        Try another service or check back at a different time. Provider availability varies by area.
-      </Text>
+      <FadeInView delay={100}>
+        <View style={styles.iconContainer}>
+          <MapPinOff size={48} color={colors.service.towing} />
+        </View>
+      </FadeInView>
+      <FadeInView delay={200}>
+        <Text style={styles.title}>No Providers Available</Text>
+      </FadeInView>
+      <FadeInView delay={300}>
+        <Text style={styles.message}>
+          Try another service or check back at a different time. Provider availability varies by area.
+        </Text>
+      </FadeInView>
       {onTryAnother && (
-        <TouchableOpacity
-          onPress={onTryAnother}
-          style={styles.primaryButton}
-          accessibilityLabel="Try another service"
-          accessibilityRole="button"
-        >
-          <Text style={styles.primaryText}>Try Another Service</Text>
-        </TouchableOpacity>
+        <FadeInView delay={400}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              onTryAnother();
+            }}
+            style={styles.primaryButton}
+            accessibilityLabel="Try another service"
+          >
+            <Text style={styles.primaryText}>Try Another Service</Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
       {onCheckLater && (
-        <TouchableOpacity
-          onPress={onCheckLater}
-          style={styles.secondaryButton}
-          accessibilityLabel="Check back later"
-          accessibilityRole="button"
-        >
-          <Text style={styles.secondaryText}>Check Later</Text>
-        </TouchableOpacity>
+        <FadeInView delay={500}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              onCheckLater();
+            }}
+            style={styles.secondaryButton}
+            accessibilityLabel="Check back later"
+          >
+            <Text style={styles.secondaryText}>Check Later</Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
     </View>
   );

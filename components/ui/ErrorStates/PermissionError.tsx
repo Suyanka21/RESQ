@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking, Platform } from 'react-native';
-import { ShieldOff, Settings } from 'lucide-react-native';
+import { View, Text, StyleSheet, Linking, Platform } from 'react-native';
+import { Settings } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
+import ErrorIllustration from '@/components/illustrations/ErrorIllustration';
 
 interface PermissionErrorProps {
   permissionType?: 'location' | 'camera' | 'notifications';
@@ -32,31 +35,43 @@ export default function PermissionError({
 
   return (
     <View style={styles.container} accessibilityRole="alert">
-      <View style={styles.iconContainer}>
-        <ShieldOff size={48} color={colors.status.warning} />
-      </View>
-      <Text style={styles.title}>Permission Required</Text>
-      <Text style={styles.message}>{displayMessage}</Text>
+      <FadeInView delay={100}>
+        <ErrorIllustration size={120} />
+      </FadeInView>
+      <FadeInView delay={200}>
+        <Text style={styles.title}>Permission Required</Text>
+      </FadeInView>
+      <FadeInView delay={300}>
+        <Text style={styles.message}>{displayMessage}</Text>
+      </FadeInView>
 
-      <TouchableOpacity
-        onPress={openSettings}
-        style={styles.settingsButton}
-        accessibilityLabel="Open device settings"
-        accessibilityRole="button"
-      >
-        <Settings size={18} color={colors.text.onBrand} />
-        <Text style={styles.settingsText}>Open Settings</Text>
-      </TouchableOpacity>
+      <FadeInView delay={400}>
+        <AnimatedPressable
+          onPress={() => {
+            mediumHaptic();
+            openSettings();
+          }}
+          style={styles.settingsButton}
+          accessibilityLabel="Open device settings"
+        >
+          <Settings size={18} color={colors.text.onBrand} />
+          <Text style={styles.settingsText}>Open Settings</Text>
+        </AnimatedPressable>
+      </FadeInView>
 
       {onRetry && (
-        <TouchableOpacity
-          onPress={onRetry}
-          style={styles.retryButton}
-          accessibilityLabel="Retry permission check"
-          accessibilityRole="button"
-        >
-          <Text style={styles.retryText}>I've Enabled It</Text>
-        </TouchableOpacity>
+        <FadeInView delay={500}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              onRetry();
+            }}
+            style={styles.retryButton}
+            accessibilityLabel="Retry permission check"
+          >
+            <Text style={styles.retryText}>I've Enabled It</Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
     </View>
   );
@@ -69,15 +84,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
-  },
-  iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: colors.background.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xl,
   },
   title: {
     color: colors.text.primary,

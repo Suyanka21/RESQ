@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { AlertTriangle } from 'lucide-react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
+import ErrorIllustration from '@/components/illustrations/ErrorIllustration';
 
 interface GenericErrorProps {
   title?: string;
@@ -18,20 +20,28 @@ export default function GenericError({
 }: GenericErrorProps) {
   return (
     <View style={styles.container} accessibilityRole="alert">
-      <View style={styles.iconContainer}>
-        <AlertTriangle size={48} color={colors.status.error} />
-      </View>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.message}>{message}</Text>
+      <FadeInView delay={100}>
+        <ErrorIllustration size={120} />
+      </FadeInView>
+      <FadeInView delay={200}>
+        <Text style={styles.title}>{title}</Text>
+      </FadeInView>
+      <FadeInView delay={300}>
+        <Text style={styles.message}>{message}</Text>
+      </FadeInView>
       {onRetry && (
-        <TouchableOpacity
-          onPress={onRetry}
-          style={styles.retryButton}
-          accessibilityLabel={retryLabel}
-          accessibilityRole="button"
-        >
-          <Text style={styles.retryText}>{retryLabel}</Text>
-        </TouchableOpacity>
+        <FadeInView delay={400}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              onRetry();
+            }}
+            style={styles.retryButton}
+            accessibilityLabel={retryLabel}
+          >
+            <Text style={styles.retryText}>{retryLabel}</Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
     </View>
   );
@@ -44,16 +54,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
-  },
-  iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: colors.background.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xl,
-    ...shadows.glow,
   },
   title: {
     color: colors.text.primary,

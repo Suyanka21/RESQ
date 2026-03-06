@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { CreditCard } from 'lucide-react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
+import EmptyWalletIllustration from '@/components/illustrations/EmptyWalletIllustration';
 
 interface NoTransactionsProps {
   onRequestService?: () => void;
@@ -10,22 +12,30 @@ interface NoTransactionsProps {
 export default function NoTransactions({ onRequestService }: NoTransactionsProps) {
   return (
     <View style={styles.container} accessibilityLabel="No transactions yet">
-      <View style={styles.iconContainer}>
-        <CreditCard size={48} color={colors.service.towing} />
-      </View>
-      <Text style={styles.title}>No Transactions</Text>
-      <Text style={styles.message}>
-        Complete your first service to see transaction history here.
-      </Text>
+      <FadeInView delay={100}>
+        <EmptyWalletIllustration size={120} />
+      </FadeInView>
+      <FadeInView delay={200}>
+        <Text style={styles.title}>No Transactions</Text>
+      </FadeInView>
+      <FadeInView delay={300}>
+        <Text style={styles.message}>
+          Complete your first service to see transaction history here.
+        </Text>
+      </FadeInView>
       {onRequestService && (
-        <TouchableOpacity
-          onPress={onRequestService}
-          style={styles.ctaButton}
-          accessibilityLabel="Request a service"
-          accessibilityRole="button"
-        >
-          <Text style={styles.ctaText}>Request Service</Text>
-        </TouchableOpacity>
+        <FadeInView delay={400}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              onRequestService();
+            }}
+            style={styles.ctaButton}
+            accessibilityLabel="Request a service"
+          >
+            <Text style={styles.ctaText}>Request Service</Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
     </View>
   );
@@ -38,15 +48,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
-  },
-  iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: colors.background.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xl,
   },
   title: {
     color: colors.text.primary,

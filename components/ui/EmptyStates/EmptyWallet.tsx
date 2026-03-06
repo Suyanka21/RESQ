@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { CreditCard } from 'lucide-react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
+import EmptyWalletIllustration from '@/components/illustrations/EmptyWalletIllustration';
 
 interface EmptyWalletProps {
   onAddPayment?: () => void;
@@ -10,22 +12,30 @@ interface EmptyWalletProps {
 export default function EmptyWallet({ onAddPayment }: EmptyWalletProps) {
   return (
     <View style={styles.container} accessibilityLabel="Empty wallet">
-      <View style={styles.iconContainer}>
-        <CreditCard size={48} color={colors.service.towing} />
-      </View>
-      <Text style={styles.title}>No Transactions</Text>
-      <Text style={styles.message}>
-        Add M-Pesa to start saving. Your transaction history will appear here.
-      </Text>
+      <FadeInView delay={100}>
+        <EmptyWalletIllustration size={120} />
+      </FadeInView>
+      <FadeInView delay={200}>
+        <Text style={styles.title}>No Transactions</Text>
+      </FadeInView>
+      <FadeInView delay={300}>
+        <Text style={styles.message}>
+          Add M-Pesa to start saving. Your transaction history will appear here.
+        </Text>
+      </FadeInView>
       {onAddPayment && (
-        <TouchableOpacity
-          onPress={onAddPayment}
-          style={styles.ctaButton}
-          accessibilityLabel="Add M-Pesa payment method"
-          accessibilityRole="button"
-        >
-          <Text style={styles.ctaText}>Add M-Pesa</Text>
-        </TouchableOpacity>
+        <FadeInView delay={400}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              onAddPayment();
+            }}
+            style={styles.ctaButton}
+            accessibilityLabel="Add M-Pesa payment method"
+          >
+            <Text style={styles.ctaText}>Add M-Pesa</Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
     </View>
   );
@@ -38,15 +48,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
-  },
-  iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: colors.background.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xl,
   },
   title: {
     color: colors.text.primary,

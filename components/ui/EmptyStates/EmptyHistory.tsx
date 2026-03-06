@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Clock } from 'lucide-react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
+import EmptyHistoryIllustration from '@/components/illustrations/EmptyHistoryIllustration';
 
 interface EmptyHistoryProps {
   onRequestHelp?: () => void;
@@ -10,22 +12,30 @@ interface EmptyHistoryProps {
 export default function EmptyHistory({ onRequestHelp }: EmptyHistoryProps) {
   return (
     <View style={styles.container} accessibilityLabel="No service history">
-      <View style={styles.iconContainer}>
-        <Clock size={48} color={colors.service.towing} />
-      </View>
-      <Text style={styles.title}>No Trips Yet</Text>
-      <Text style={styles.message}>
-        Your service history will appear here. Request roadside help to get started!
-      </Text>
+      <FadeInView delay={100}>
+        <EmptyHistoryIllustration size={120} />
+      </FadeInView>
+      <FadeInView delay={200}>
+        <Text style={styles.title}>No Trips Yet</Text>
+      </FadeInView>
+      <FadeInView delay={300}>
+        <Text style={styles.message}>
+          Your service history will appear here. Request roadside help to get started!
+        </Text>
+      </FadeInView>
       {onRequestHelp && (
-        <TouchableOpacity
-          onPress={onRequestHelp}
-          style={styles.ctaButton}
-          accessibilityLabel="Request roadside help"
-          accessibilityRole="button"
-        >
-          <Text style={styles.ctaText}>Request Help</Text>
-        </TouchableOpacity>
+        <FadeInView delay={400}>
+          <AnimatedPressable
+            onPress={() => {
+              mediumHaptic();
+              onRequestHelp();
+            }}
+            style={styles.ctaButton}
+            accessibilityLabel="Request roadside help"
+          >
+            <Text style={styles.ctaText}>Request Help</Text>
+          </AnimatedPressable>
+        </FadeInView>
       )}
     </View>
   );
@@ -38,15 +48,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
-  },
-  iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: colors.background.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xl,
   },
   title: {
     color: colors.text.primary,

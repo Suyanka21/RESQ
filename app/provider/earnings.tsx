@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, TrendingUp, Calendar } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
@@ -8,6 +8,8 @@ import { TransactionSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
 import { NoTransactions } from '@/components/ui/EmptyStates';
 import { TOUCH_TARGET, announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView, PullToRefresh } from '@/components/animations';
+import { lightHaptic, mediumHaptic } from '@/utils/haptics';
 
 const MOCK_EARNINGS = [
   { id: '1', date: 'Today', jobs: 3, amount: 12500 },
@@ -29,21 +31,30 @@ export default function ProviderEarningsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const renderEarningItem = useCallback(({ item }: { item: typeof MOCK_EARNINGS[0] }) => (
-    <View
-      style={styles.dayRow}
-      accessible
-      accessibilityLabel={`${item.date}. ${item.jobs} jobs. KES ${item.amount.toLocaleString()}`}
-    >
-      <View style={styles.dayInfo}>
-        <Calendar size={16} color={colors.text.tertiary} />
-        <View>
-          <Text style={styles.dayDate}>{item.date}</Text>
-          <Text style={styles.dayJobs}>{item.jobs} jobs</Text>
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
+
+  const renderEarningItem = useCallback(({ item, index }: { item: typeof MOCK_EARNINGS[0]; index: number }) => (
+    <FadeInView delay={index * 80}>
+      <View
+        style={styles.dayRow}
+        accessible
+        accessibilityLabel={`${item.date}. ${item.jobs} jobs. KES ${item.amount.toLocaleString()}`}
+      >
+        <View style={styles.dayInfo}>
+          <Calendar size={16} color={colors.text.tertiary} />
+          <View>
+            <Text style={styles.dayDate}>{item.date}</Text>
+            <Text style={styles.dayJobs}>{item.jobs} jobs</Text>
+          </View>
         </View>
+        <Text style={styles.dayAmount}>KES {item.amount.toLocaleString()}</Text>
       </View>
-      <Text style={styles.dayAmount}>KES {item.amount.toLocaleString()}</Text>
-    </View>
+    </FadeInView>
   ), []);
 
   useEffect(() => {
@@ -61,16 +72,17 @@ export default function ProviderEarningsScreen() {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
+          <AnimatedPressable
+            onPress={() => {
+              lightHaptic();
+              router.back();
+            }}
             style={styles.backButton}
-            hitSlop={TOUCH_TARGET.HIT_SLOP}
             accessibilityLabel="Go back"
-            accessibilityRole="button"
             accessibilityHint="Returns to previous screen"
           >
             <ArrowLeft size={20} color={colors.text.primary} />
-          </TouchableOpacity>
+          </AnimatedPressable>
           <Text style={styles.headerTitle} accessibilityRole="header">Earnings</Text>
           <View style={{ width: 40 }} />
         </View>
@@ -95,16 +107,17 @@ export default function ProviderEarningsScreen() {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
+          <AnimatedPressable
+            onPress={() => {
+              lightHaptic();
+              router.back();
+            }}
             style={styles.backButton}
-            hitSlop={TOUCH_TARGET.HIT_SLOP}
             accessibilityLabel="Go back"
-            accessibilityRole="button"
             accessibilityHint="Returns to previous screen"
           >
             <ArrowLeft size={20} color={colors.text.primary} />
-          </TouchableOpacity>
+          </AnimatedPressable>
           <Text style={styles.headerTitle} accessibilityRole="header">Earnings</Text>
           <View style={{ width: 40 }} />
         </View>
@@ -116,21 +129,23 @@ export default function ProviderEarningsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
+        <AnimatedPressable
+          onPress={() => {
+            lightHaptic();
+            router.back();
+          }}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
         <Text style={styles.headerTitle} accessibilityRole="header">Earnings</Text>
         <View style={{ width: 40 }} />
       </View>
 
       {/* Total Earnings - Oversized Typography (48px) */}
+      <FadeInView delay={100}>
       <View style={styles.totalSection} accessible accessibilityLabel="This week's earnings: KES 54,750. Up 12 percent from last week">
         <Text style={styles.totalLabel}>THIS WEEK</Text>
         <Text style={styles.totalAmount}>KES 54,750</Text>
@@ -139,6 +154,7 @@ export default function ProviderEarningsScreen() {
           <Text style={styles.trendText}>+12% from last week</Text>
         </View>
       </View>
+      </FadeInView>
 
       {/* Stats Row */}
       <View style={styles.statsRow}>
@@ -158,27 +174,29 @@ export default function ProviderEarningsScreen() {
 
       {/* Daily Breakdown */}
       <Text style={styles.sectionTitle}>Daily Breakdown</Text>
-      <FlatList
-        data={MOCK_EARNINGS}
-        keyExtractor={earningKeyExtractor}
-        contentContainerStyle={styles.list}
-        renderItem={renderEarningItem}
-        getItemLayout={getEarningItemLayout}
-        removeClippedSubviews
-        maxToRenderPerBatch={10}
-        windowSize={5}
-      />
+      <PullToRefresh refreshing={refreshing} onRefresh={handleRefresh}>
+        <FlatList
+          data={MOCK_EARNINGS}
+          keyExtractor={earningKeyExtractor}
+          contentContainerStyle={styles.list}
+          renderItem={renderEarningItem}
+          getItemLayout={getEarningItemLayout}
+          removeClippedSubviews
+          maxToRenderPerBatch={10}
+          windowSize={5}
+        />
+      </PullToRefresh>
 
       {/* Payout Button */}
       <View style={styles.footer}>
-        <TouchableOpacity
+        <AnimatedPressable
+          onPress={() => mediumHaptic()}
           style={styles.payoutButton}
           accessibilityLabel="Request payout"
-          accessibilityRole="button"
           accessibilityHint="Initiates a payout transfer to your mobile money account"
         >
           <Text style={styles.payoutText}>Request Payout</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );

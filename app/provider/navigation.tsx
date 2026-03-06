@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Navigation as NavIcon, Phone, MapPin } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MapPlaceholder from '@/components/MapPlaceholder';
-import MetalSurface from '@/components/MetalSurface';
 import { MapSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
 import { announceForAccessibility, useReducedMotion } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView, GlassmorphicPanel } from '@/components/animations';
+import { mediumHaptic, heavyHaptic } from '@/utils/haptics';
 
 export default function ProviderNavigationScreen() {
   const router = useRouter();
@@ -48,8 +49,9 @@ export default function ProviderNavigationScreen() {
       </View>
 
       {/* Flare-style Navigation Overlay */}
+      <FadeInView delay={200}>
       <View style={styles.navOverlay}>
-        <MetalSurface variant="glass" radius="xl" style={styles.navCard}>
+        <GlassmorphicPanel intensity="medium" radius="xl" style={styles.navCard}>
           <View style={styles.navRow}>
             <NavIcon size={24} color={colors.voltage} accessibilityElementsHidden />
             <View style={styles.navInfo}>
@@ -57,8 +59,9 @@ export default function ProviderNavigationScreen() {
               <Text style={styles.navDistance} accessibilityLiveRegion="polite">1.2 km - 3 min</Text>
             </View>
           </View>
-        </MetalSurface>
+        </GlassmorphicPanel>
       </View>
+      </FadeInView>
 
       {/* Bottom Panel */}
       <View style={styles.bottomPanel}>
@@ -81,18 +84,18 @@ export default function ProviderNavigationScreen() {
               <Text style={styles.locationText}>Westlands, Nairobi</Text>
             </View>
           </View>
-          <TouchableOpacity
+          <AnimatedPressable
+            onPress={() => mediumHaptic()}
             style={styles.callButton}
             accessibilityLabel="Call customer John Doe"
-            accessibilityRole="button"
             accessibilityHint="Opens phone dialer to call the customer"
           >
             <Phone size={18} color={colors.text.onBrand} />
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
 
         {/* ETA */}
-        <MetalSurface variant="glass" radius="lg" style={styles.etaCard}>
+        <GlassmorphicPanel intensity="light" radius="lg" style={styles.etaCard}>
           <View style={styles.etaRow} accessibilityRole="summary">
             <View accessible accessibilityLabel="Estimated time of arrival: 8 minutes">
               <Text style={styles.etaLabel}>ETA</Text>
@@ -107,18 +110,20 @@ export default function ProviderNavigationScreen() {
               <Text style={[styles.etaValue, { color: colors.status.success }]}>KES 5,000</Text>
             </View>
           </View>
-        </MetalSurface>
+        </GlassmorphicPanel>
 
         {/* Arrived Button */}
-        <TouchableOpacity
-          onPress={() => router.replace('/provider/job-service')}
+        <AnimatedPressable
+          onPress={() => {
+            heavyHaptic();
+            router.replace('/provider/job-service');
+          }}
           style={styles.arrivedButton}
           accessibilityLabel="I have arrived at the customer location"
-          accessibilityRole="button"
           accessibilityHint="Confirms your arrival and starts the service"
         >
           <Text style={styles.arrivedText}>I Have Arrived</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );
