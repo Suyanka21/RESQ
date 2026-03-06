@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft, ShieldCheck } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { TOUCH_TARGET } from '@/utils/accessibility';
 
 export default function ProviderLoginScreen() {
   const router = useRouter();
@@ -28,21 +29,31 @@ export default function ProviderLoginScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        <View style={styles.iconBox}>
+        <View
+          style={styles.iconBox}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
           <ShieldCheck size={32} color={colors.voltage} />
         </View>
 
-        <Text style={styles.title}>Provider Login</Text>
+        <Text style={styles.title} accessibilityRole="header">Provider Login</Text>
         <Text style={styles.subtitle}>Sign in to your provider account</Text>
 
+        {/* Form label separated from placeholder */}
+        <Text style={styles.inputLabel} accessibilityRole="text">
+          Phone Number
+        </Text>
         <MetalSurface variant="sunken" radius="lg" style={styles.inputContainer}>
           <View style={styles.inputRow}>
             <Text style={styles.prefix}>+254</Text>
@@ -54,7 +65,8 @@ export default function ProviderLoginScreen() {
               placeholderTextColor={colors.text.disabled}
               keyboardType="phone-pad"
               maxLength={10}
-              accessibilityLabel="Provider phone number"
+              accessibilityLabel="Provider phone number, country code plus 254"
+              accessibilityHint="Enter your 9 or 10 digit phone number"
             />
           </View>
         </MetalSurface>
@@ -63,8 +75,10 @@ export default function ProviderLoginScreen() {
           onPress={() => router.push('/provider/otp')}
           disabled={!isValid}
           style={[styles.loginButton, !isValid && styles.loginButtonDisabled]}
-          accessibilityLabel="Continue to OTP"
+          accessibilityLabel="Continue to OTP verification"
           accessibilityRole="button"
+          accessibilityHint="Sends a verification code to your phone number"
+          accessibilityState={{ disabled: !isValid }}
         >
           <Text style={[styles.loginText, !isValid && styles.loginTextDisabled]}>
             Continue
@@ -122,6 +136,16 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     color: colors.text.secondary,
     marginBottom: spacing.xl,
+  },
+  inputLabel: {
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.text.secondary,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    alignSelf: 'center',
+    marginBottom: spacing.sm,
+    maxWidth: 360,
   },
   inputContainer: {
     width: '100%',

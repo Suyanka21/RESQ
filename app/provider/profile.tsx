@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useProviderStore } from '@/stores/providerStore';
 import { ProfileSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
+import { TOUCH_TARGET, announceForAccessibility } from '@/utils/accessibility';
 
 const MENU_ITEMS = [
   { id: 'settings', label: 'Account Settings', icon: Settings },
@@ -25,6 +26,12 @@ export default function ProviderProfileScreen() {
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      announceForAccessibility(`Provider profile. James Mwangi. Towing Specialist. Rating: ${rating.toFixed(1)}. ${completedJobs} jobs completed.`);
+    }
+  }, [isLoading, rating, completedJobs]);
 
   const handleLogout = () => {
     logout();
@@ -51,34 +58,40 @@ export default function ProviderProfileScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
           accessibilityRole="button"
+          accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle} accessibilityRole="header">Profile</Text>
         <View style={{ width: 40 }} />
       </View>
 
       {/* Profile Header */}
       <View style={styles.profileHeader}>
-        <View style={styles.avatar}>
+        <View
+          style={styles.avatar}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
           <Text style={styles.avatarText}>J</Text>
         </View>
-        <Text style={styles.name}>James Mwangi</Text>
+        <Text style={styles.name} accessibilityRole="header">James Mwangi</Text>
         <Text style={styles.role}>Towing Specialist</Text>
 
         {/* Badge System */}
         <View style={styles.badges}>
-          <View style={styles.badge}>
+          <View style={styles.badge} accessible accessibilityLabel="Verified provider">
             <Shield size={16} color={colors.status.success} />
             <Text style={styles.badgeText}>Verified</Text>
           </View>
-          <View style={styles.badge}>
+          <View style={styles.badge} accessible accessibilityLabel={`Rating: ${rating.toFixed(1)} stars`}>
             <Star size={16} color={colors.voltage} />
             <Text style={styles.badgeText}>{rating.toFixed(1)}</Text>
           </View>
-          <View style={styles.badge}>
+          <View style={styles.badge} accessible accessibilityLabel="Gold tier provider">
             <Award size={16} color={colors.status.info} />
             <Text style={styles.badgeText}>Gold</Text>
           </View>
@@ -87,15 +100,15 @@ export default function ProviderProfileScreen() {
 
       {/* Stats */}
       <View style={styles.statsRow}>
-        <MetalSurface variant="extruded" radius="lg" style={styles.stat}>
+        <MetalSurface variant="extruded" radius="lg" style={styles.stat} accessible accessibilityLabel={`${completedJobs} jobs completed`}>
           <Text style={styles.statValue}>{completedJobs}</Text>
           <Text style={styles.statLabel}>Jobs</Text>
         </MetalSurface>
-        <MetalSurface variant="extruded" radius="lg" style={styles.stat}>
+        <MetalSurface variant="extruded" radius="lg" style={styles.stat} accessible accessibilityLabel={`Rating: ${rating.toFixed(1)} stars`}>
           <Text style={styles.statValue}>{rating.toFixed(1)}</Text>
           <Text style={styles.statLabel}>Rating</Text>
         </MetalSurface>
-        <MetalSurface variant="extruded" radius="lg" style={styles.stat}>
+        <MetalSurface variant="extruded" radius="lg" style={styles.stat} accessible accessibilityLabel="98 percent acceptance rate">
           <Text style={styles.statValue}>98%</Text>
           <Text style={styles.statLabel}>Accept</Text>
         </MetalSurface>
@@ -112,6 +125,7 @@ export default function ProviderProfileScreen() {
               style={styles.menuItem}
               accessibilityLabel={item.label}
               accessibilityRole="button"
+              accessibilityHint={item.id === 'support' ? 'Opens help and support page' : 'Opens account settings'}
             >
               <Icon size={20} color={colors.voltage} />
               <Text style={styles.menuLabel}>{item.label}</Text>
@@ -127,12 +141,13 @@ export default function ProviderProfileScreen() {
         style={styles.switchButton}
         accessibilityLabel="Switch to customer mode"
         accessibilityRole="button"
+        accessibilityHint="Switches from provider view to customer view"
       >
         <Text style={styles.switchText}>Switch to Customer Mode</Text>
       </TouchableOpacity>
 
       {/* Logout */}
-      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton} accessibilityLabel="Log out" accessibilityRole="button">
+      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton} accessibilityLabel="Log out" accessibilityRole="button" accessibilityHint="Signs you out and returns to the landing page">
         <LogOut size={18} color={colors.status.error} />
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>

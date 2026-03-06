@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { CheckCircle, Share2 } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
+import { announceForAccessibility } from '@/utils/accessibility';
 
 export default function ProviderJobSummaryScreen() {
   const router = useRouter();
@@ -11,6 +12,10 @@ export default function ProviderJobSummaryScreen() {
   const handleFinish = () => {
     router.replace('/provider/dashboard');
   };
+
+  React.useEffect(() => {
+    announceForAccessibility('Job complete. Digital receipt generated. Your earnings: KES 4,250.');
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -21,11 +26,11 @@ export default function ProviderJobSummaryScreen() {
           <CheckCircle size={72} color={colors.status.success} />
         </View>
 
-        <Text style={styles.title}>Job Complete</Text>
+        <Text style={styles.title} accessibilityRole="header">Job Complete</Text>
         <Text style={styles.subtitle}>Digital receipt generated</Text>
 
         {/* Receipt Card */}
-        <MetalSurface variant="glass" radius="xl" style={styles.receiptCard}>
+        <MetalSurface variant="glass" radius="xl" style={styles.receiptCard} accessible accessibilityLabel="Receipt. Service: Towing. Customer: John Doe. Location: Westlands, Nairobi. Duration: 45 minutes. Date: January 30, 2026. Base Fare: KES 5,000. Platform Fee: KES 750. Your Earnings: KES 4,250.">
           <Text style={styles.receiptHeader}>RECEIPT</Text>
           <View style={styles.receiptDivider} />
 
@@ -74,6 +79,7 @@ export default function ProviderJobSummaryScreen() {
           style={styles.shareButton}
           accessibilityLabel="Share receipt"
           accessibilityRole="button"
+          accessibilityHint="Opens sharing options for the digital receipt"
         >
           <Share2 size={16} color={colors.voltage} />
           <Text style={styles.shareText}>Share Receipt</Text>
@@ -86,6 +92,7 @@ export default function ProviderJobSummaryScreen() {
           style={styles.finishButton}
           accessibilityLabel="Back to dashboard"
           accessibilityRole="button"
+          accessibilityHint="Returns to the provider dashboard"
         >
           <Text style={styles.finishText}>Back to Dashboard</Text>
         </TouchableOpacity>
