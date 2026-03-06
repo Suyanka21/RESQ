@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { Clock, MapPin } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { HistoryItemSkeleton } from '@/components/ui/LoadingStates';
 import { EmptyHistory } from '@/components/ui/EmptyStates';
 import { GenericError } from '@/components/ui/ErrorStates';
+import { FadeInView, SwipeToDelete } from '@/components/animations';
+import { lightHaptic } from '@/utils/haptics';
 
 const MOCK_HISTORY = [
   { id: '1', service: 'Towing', date: '2026-01-28', price: 5000, status: 'completed', location: 'Westlands, Nairobi' },
@@ -24,9 +26,20 @@ const getItemLayout = (_data: typeof MOCK_HISTORY | null, index: number) => ({
 export default function HistoryScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const renderHistoryItem = useCallback(({ item }: { item: typeof MOCK_HISTORY[0] }) => (
-    <MetalSurface variant="extruded" radius="lg" style={styles.card}>
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    lightHaptic();
+    // Simulate refresh
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+    setRefreshing(false);
+  }, []);
+
+  const renderHistoryItem = useCallback(({ item, index }: { item: typeof MOCK_HISTORY[0]; index: number }) => (
+    <FadeInView delay={index * 80} duration={300}>
+      <SwipeToDelete onDelete={() => { /* handle delete */ }}>
+        <MetalSurface variant="extruded" radius="lg" style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.serviceTag}>
           <Text style={styles.serviceText}>{item.service}</Text>
@@ -48,6 +61,8 @@ export default function HistoryScreen() {
         <Text style={styles.statusText}>Completed</Text>
       </View>
     </MetalSurface>
+      </SwipeToDelete>
+    </FadeInView>
   ), []);
 
   useEffect(() => {
@@ -98,6 +113,15 @@ export default function HistoryScreen() {
         removeClippedSubviews
         maxToRenderPerBatch={10}
         windowSize={5}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.voltage}
+            colors={[colors.voltage]}
+            progressBackgroundColor={colors.background.secondary}
+          />
+        }
       />
     </View>
   );

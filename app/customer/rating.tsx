@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Star } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { TOUCH_TARGET } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { selectionHaptic, successHaptic, lightHaptic } from '@/utils/haptics';
 
 const TAGS = ['Professional', 'On Time', 'Friendly', 'Clean Work', 'Fair Price'];
 
@@ -33,22 +35,24 @@ export default function RatingScreen() {
         {/* Stars - Touch targets meet 44pt minimum */}
         <View style={styles.stars} accessibilityRole="radiogroup" accessibilityLabel="Rating">
           {[1, 2, 3, 4, 5].map((star) => (
-            <TouchableOpacity
+            <AnimatedPressable
               key={star}
-              onPress={() => setRating(star)}
+              onPress={() => {
+                selectionHaptic();
+                setRating(star);
+              }}
               style={styles.starButton}
-              hitSlop={TOUCH_TARGET.HIT_SLOP}
               accessibilityLabel={`Rate ${star} star${star > 1 ? 's' : ''}`}
-              accessibilityRole="button"
               accessibilityState={{ selected: star <= rating }}
               accessibilityHint={`Sets rating to ${star} out of 5`}
+              scaleValue={0.85}
             >
               <Star
                 size={40}
                 color={star <= rating ? colors.voltage : colors.text.disabled}
                 fill={star <= rating ? colors.voltage : 'transparent'}
               />
-            </TouchableOpacity>
+            </AnimatedPressable>
           ))}
         </View>
 
@@ -57,18 +61,21 @@ export default function RatingScreen() {
           {TAGS.map((tag) => {
             const isSelected = selectedTags.includes(tag);
             return (
-              <TouchableOpacity
+              <AnimatedPressable
                 key={tag}
-                onPress={() => toggleTag(tag)}
+                onPress={() => {
+                  lightHaptic();
+                  toggleTag(tag);
+                }}
                 style={[styles.tag, isSelected && styles.tagSelected]}
                 accessibilityLabel={tag}
-                accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
+                scaleValue={0.93}
               >
                 <Text style={[styles.tagText, isSelected && styles.tagTextSelected]}>
                   {tag}
                 </Text>
-              </TouchableOpacity>
+              </AnimatedPressable>
             );
           })}
         </View>
@@ -89,21 +96,22 @@ export default function RatingScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={handleSubmit}
+        <AnimatedPressable
+          onPress={() => {
+            successHaptic();
+            handleSubmit();
+          }}
           style={styles.submitButton}
           accessibilityLabel="Submit rating"
-          accessibilityRole="button"
         >
           <Text style={styles.submitText}>Submit</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        </AnimatedPressable>
+        <AnimatedPressable
           onPress={() => router.replace('/(tabs)')}
           accessibilityLabel="Skip rating"
-          accessibilityRole="button"
         >
           <Text style={styles.skipText}>Skip</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </View>
   );

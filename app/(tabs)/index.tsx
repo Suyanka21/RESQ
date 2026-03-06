@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   AlertTriangle,
@@ -20,6 +20,8 @@ import { ServiceCardSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
 import { OfflineQueueBanner } from '@/components/ui/OfflineExperience';
 import { TOUCH_TARGET } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView, GlassmorphicPanel } from '@/components/animations';
+import { mediumHaptic, heavyHaptic } from '@/utils/haptics';
 
 const SERVICES: { id: ServiceType; label: string; icon: typeof Wrench; color: string }[] = [
   { id: 'towing', label: 'Towing', icon: Wrench, color: colors.service.towing },
@@ -69,21 +71,19 @@ export default function DashboardScreen() {
           <View style={styles.statusDot} />
           <Text style={styles.statusText}>SYSTEM ONLINE</Text>
         </MetalSurface>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.push('/customer/support')}
           style={styles.supportButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Contact support"
-          accessibilityRole="button"
           accessibilityHint="Opens support and help options"
         >
           <Headphones size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       {/* Bottom Panel */}
       <View style={styles.bottomPanel}>
-        <MetalSurface variant="glass" radius="xxl" style={styles.panel}>
+        <GlassmorphicPanel intensity="medium" radius="xxl" style={styles.panel}>
           {/* SOS Button */}
           <View style={styles.sosContainer}>
             <SOSReactorButton onPress={handleSOS} />
@@ -125,17 +125,21 @@ export default function DashboardScreen() {
 
             {/* Dispatch Button */}
             {activeService && (
-              <TouchableOpacity
-                onPress={handleDispatch}
-                style={styles.dispatchButton}
-                accessibilityLabel="Confirm dispatch"
-                accessibilityRole="button"
-              >
-                <Text style={styles.dispatchText}>Confirm Dispatch</Text>
-              </TouchableOpacity>
+              <FadeInView duration={200}>
+                <AnimatedPressable
+                  onPress={() => {
+                    heavyHaptic();
+                    handleDispatch();
+                  }}
+                  style={styles.dispatchButton}
+                  accessibilityLabel="Confirm dispatch"
+                >
+                  <Text style={styles.dispatchText}>Confirm Dispatch</Text>
+                </AnimatedPressable>
+              </FadeInView>
             )}
           </View>
-        </MetalSurface>
+        </GlassmorphicPanel>
       </View>
     </View>
   );

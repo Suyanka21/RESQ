@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Car, Plus, Trash2 } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { EmptyVehicles } from '@/components/ui/EmptyStates';
 import { TOUCH_TARGET } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView, SwipeToDelete } from '@/components/animations';
+import { lightHaptic, errorHaptic } from '@/utils/haptics';
 
 const MOCK_VEHICLES = [
   { id: '1', make: 'Toyota', model: 'Corolla', year: '2020', plate: 'KDA 123A', color: 'White' },
@@ -19,26 +21,23 @@ export default function ManageVehiclesScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.back()}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
         <Text style={styles.headerTitle} accessibilityRole="header">My Vehicles</Text>
-        <TouchableOpacity
+        <AnimatedPressable
+          onPress={() => { lightHaptic(); }}
           style={styles.addButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Add vehicle"
-          accessibilityRole="button"
           accessibilityHint="Opens form to add a new vehicle"
         >
           <Plus size={20} color={colors.voltage} />
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       {MOCK_VEHICLES.length === 0 ? (
@@ -48,28 +47,31 @@ export default function ManageVehiclesScreen() {
           data={MOCK_VEHICLES}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
-            <MetalSurface variant="extruded" radius="lg" style={styles.card}>
-              <View style={styles.cardRow}>
-                <View style={styles.carIcon}>
-                  <Car size={24} color={colors.voltage} />
-                </View>
-                <View style={styles.cardInfo}>
-                  <Text style={styles.carName}>{item.make} {item.model}</Text>
-                  <Text style={styles.carDetail}>{item.year} - {item.color}</Text>
-                  <Text style={styles.carPlate}>{item.plate}</Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  hitSlop={TOUCH_TARGET.HIT_SLOP}
-                  accessibilityLabel={`Remove ${item.make} ${item.model}`}
-                  accessibilityRole="button"
-                  accessibilityHint="Removes this vehicle from your account"
-                >
-                  <Trash2 size={18} color={colors.status.error} />
-                </TouchableOpacity>
-              </View>
-            </MetalSurface>
+          renderItem={({ item, index }) => (
+            <FadeInView delay={index * 80} duration={300}>
+              <SwipeToDelete onDelete={() => { errorHaptic(); }}>
+                <MetalSurface variant="extruded" radius="lg" style={styles.card}>
+                  <View style={styles.cardRow}>
+                    <View style={styles.carIcon}>
+                      <Car size={24} color={colors.voltage} />
+                    </View>
+                    <View style={styles.cardInfo}>
+                      <Text style={styles.carName}>{item.make} {item.model}</Text>
+                      <Text style={styles.carDetail}>{item.year} - {item.color}</Text>
+                      <Text style={styles.carPlate}>{item.plate}</Text>
+                    </View>
+                    <AnimatedPressable
+                      onPress={() => { errorHaptic(); }}
+                      style={styles.deleteButton}
+                      accessibilityLabel={`Remove ${item.make} ${item.model}`}
+                      accessibilityHint="Removes this vehicle from your account"
+                    >
+                      <Trash2 size={18} color={colors.status.error} />
+                    </AnimatedPressable>
+                  </View>
+                </MetalSurface>
+              </SwipeToDelete>
+            </FadeInView>
           )}
         />
       )}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Phone } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
@@ -8,6 +8,8 @@ import ProviderCard from '@/components/ProviderCard';
 import { MapSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
 import { announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView, GlassmorphicPanel } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
 
 export default function LiveTrackingScreen() {
   const router = useRouter();
@@ -57,10 +59,13 @@ export default function LiveTrackingScreen() {
       </View>
 
       {/* Bottom Panel */}
-      <View style={styles.bottomPanel}>
+      <GlassmorphicPanel intensity="medium" style={styles.bottomPanel}>
         <View style={styles.handle} />
-        <Text style={styles.statusText}>Provider is on the way</Text>
+        <FadeInView delay={100}>
+          <Text style={styles.statusText}>Provider is on the way</Text>
+        </FadeInView>
 
+        <FadeInView delay={200}>
         <ProviderCard
           name="James Mwangi"
           rating={4.9}
@@ -68,19 +73,22 @@ export default function LiveTrackingScreen() {
           plate="KDA 123A"
           eta={8}
         />
+        </FadeInView>
 
+        <FadeInView delay={300}>
         <View style={styles.actions}>
-          <TouchableOpacity
+          <AnimatedPressable
+            onPress={() => { mediumHaptic(); }}
             style={styles.callButton}
             accessibilityLabel="Call provider James Mwangi"
-            accessibilityRole="button"
             accessibilityHint="Opens phone dialer to call your assigned provider"
           >
             <Phone size={18} color={colors.text.onBrand} />
             <Text style={styles.callText}>Call Provider</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
-      </View>
+        </FadeInView>
+      </GlassmorphicPanel>
     </View>
   );
 }

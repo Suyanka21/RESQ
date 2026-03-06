@@ -1,6 +1,17 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  Easing,
+} from 'react-native-reanimated';
 import { colors, shadows, typography, spacing, borderRadius } from '@/theme';
+import { AnimatedPressable } from '@/components/animations';
+import { selectionHaptic } from '@/utils/haptics';
+import { useReducedMotion } from '@/utils/accessibility';
+import { ANIMATION_DURATION, SPRING_CONFIG } from '@/utils/animations';
 
 interface ServiceChipProps {
   label: string;
@@ -17,18 +28,57 @@ function ServiceChip({
   isActive,
   onPress,
 }: ServiceChipProps) {
+  const prefersReducedMotion = useReducedMotion();
+  const glowOpacity = useSharedValue(0);
+  const backlightWidth = useSharedValue(0);
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      glowOpacity.value = isActive ? 0.3 : 0;
+      backlightWidth.value = isActive ? 1 : 0;
+      return;
+    }
+
+    glowOpacity.value = withTiming(isActive ? 0.3 : 0, {
+      duration: ANIMATION_DURATION.normal,
+      easing: Easing.inOut(Easing.ease),
+    });
+    backlightWidth.value = withSpring(isActive ? 1 : 0, SPRING_CONFIG.snappy);
+  }, [isActive, prefersReducedMotion, glowOpacity, backlightWidth]);
+
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: glowOpacity.value,
+  }));
+
+  const backlightStyle = useAnimatedStyle(() => ({
+    transform: [{ scaleX: backlightWidth.value }],
+    opacity: backlightWidth.value,
+  }));
+
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
+    <AnimatedPressable
+      onPress={() => {
+        selectionHaptic();
+        onPress();
+      }}
       accessibilityLabel={`${label} service`}
-      accessibilityRole="button"
+      accessibilityHint={isActive ? `Deselect ${label}` : `Select ${label}`}
       accessibilityState={{ selected: isActive }}
       style={[
         styles.chip,
         isActive ? styles.chipActive : styles.chipIdle,
       ]}
+      scaleValue={0.93}
     >
+      {/* Voltage glow behind chip when active */}
+      <Animated.View
+        style={[
+          styles.voltageGlow,
+          { backgroundColor: color },
+          glowStyle,
+        ]}
+        pointerEvents="none"
+      />
       <View style={[styles.iconContainer, isActive && { opacity: 1 }]}>
         {icon}
       </View>
@@ -40,15 +90,14 @@ function ServiceChip({
       >
         {label}
       </Text>
-      {isActive && (
-        <View
-          style={[
-            styles.backlight,
-            { backgroundColor: color, shadowColor: color },
-          ]}
-        />
-      )}
-    </TouchableOpacity>
+      <Animated.View
+        style={[
+          styles.backlight,
+          { backgroundColor: color, shadowColor: color },
+          backlightStyle,
+        ]}
+      />
+    </AnimatedPressable>
   );
 }
 
@@ -63,6 +112,14 @@ const styles = StyleSheet.create({
     height: 88,
     position: 'relative',
     overflow: 'hidden',
+  },
+  voltageGlow: {
+    position: 'absolute',
+    top: -10,
+    left: -10,
+    right: -10,
+    bottom: -10,
+    borderRadius: borderRadius.lg + 10,
   },
   chipIdle: {
     backgroundColor: colors.base,

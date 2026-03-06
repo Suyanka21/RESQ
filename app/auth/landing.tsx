@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ShieldAlert } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
 import MetalSurface from '@/components/MetalSurface';
 import { TOUCH_TARGET } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { heavyHaptic, lightHaptic } from '@/utils/haptics';
 
 export default function LandingScreen() {
   const router = useRouter();
@@ -18,55 +20,62 @@ export default function LandingScreen() {
 
       <View style={styles.content}>
         {/* Hero */}
-        <MetalSurface variant="extruded" radius="xl" style={styles.iconBox}>
-          <ShieldAlert size={48} color={colors.voltage} />
-        </MetalSurface>
+        <FadeInView delay={100} slideDistance={20}>
+          <MetalSurface variant="extruded" radius="xl" style={styles.iconBox}>
+            <ShieldAlert size={48} color={colors.voltage} />
+          </MetalSurface>
+        </FadeInView>
 
-        <Text style={styles.title}>Help Is On The Way</Text>
-        <Text style={styles.subtitle}>
-          24/7 Emergency Roadside & Medical Assistance
-        </Text>
+        <FadeInView delay={200}>
+          <Text style={styles.title}>Help Is On The Way</Text>
+        </FadeInView>
+        <FadeInView delay={300}>
+          <Text style={styles.subtitle}>
+            24/7 Emergency Roadside & Medical Assistance
+          </Text>
+        </FadeInView>
 
         {/* Actions */}
-        <View style={styles.actions}>
-          <TouchableOpacity
+        <FadeInView delay={400} style={styles.actions}>
+          <AnimatedPressable
             onPress={() => {
+              heavyHaptic();
               setAuthMode('signup');
               router.push('/auth/phone');
             }}
             style={styles.primaryButton}
             accessibilityLabel="Get Started"
-            accessibilityRole="button"
             accessibilityHint="Create a new ResQ account"
           >
             <Text style={styles.primaryButtonText}>Get Started</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
+          <AnimatedPressable
             onPress={() => {
               setAuthMode('signin');
               router.push('/auth/phone');
             }}
             style={styles.signInButton}
             accessibilityLabel="Sign In"
-            accessibilityRole="button"
             accessibilityHint="Sign in to your existing account"
           >
             <Text style={styles.signInText}>
               Already have an account? Sign In
             </Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
-            onPress={() => router.push('/provider/login')}
+          <AnimatedPressable
+            onPress={() => {
+              lightHaptic();
+              router.push('/provider/login');
+            }}
             style={styles.partnerButton}
             accessibilityLabel="Partner Login"
-            accessibilityRole="button"
             accessibilityHint="Sign in as a service provider"
           >
             <Text style={styles.providerText}>Partner Login</Text>
-          </TouchableOpacity>
-        </View>
+          </AnimatedPressable>
+        </FadeInView>
       </View>
 
       <Text style={styles.legal}>

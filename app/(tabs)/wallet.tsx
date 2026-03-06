@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { CreditCard, Plus, ArrowDownLeft, ArrowUpRight } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { TransactionSkeleton } from '@/components/ui/LoadingStates';
 import { EmptyWallet } from '@/components/ui/EmptyStates';
 import { GenericError } from '@/components/ui/ErrorStates';
+import { AnimatedPressable, FadeInView, GlassmorphicPanel } from '@/components/animations';
+import { mediumHaptic, lightHaptic } from '@/utils/haptics';
 
 const MOCK_TRANSACTIONS = [
   { id: '1', type: 'payment', description: 'Towing Service', amount: -5000, date: 'Jan 28' },
@@ -24,6 +26,14 @@ const getTxItemLayout = (_data: typeof MOCK_TRANSACTIONS | null, index: number) 
 export default function WalletScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    lightHaptic();
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+    setRefreshing(false);
+  }, []);
 
   const renderTransaction = useCallback(({ item }: { item: typeof MOCK_TRANSACTIONS[0] }) => (
     <View style={styles.transaction}>
@@ -89,20 +99,22 @@ export default function WalletScreen() {
       </View>
 
       {/* Balance Card */}
-      <MetalSurface variant="glass" radius="xl" style={styles.balanceCard}>
+      <FadeInView delay={100}>
+      <GlassmorphicPanel intensity="medium" radius="xl" style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Available Balance</Text>
         <Text style={styles.balanceAmount}>KES 3,500</Text>
         <View style={styles.balanceActions}>
-          <TouchableOpacity
+          <AnimatedPressable
+            onPress={() => { mediumHaptic(); }}
             style={styles.balanceButton}
             accessibilityLabel="Top up wallet"
-            accessibilityRole="button"
           >
             <Plus size={16} color={colors.text.onBrand} />
             <Text style={styles.balanceButtonText}>Top Up</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
-      </MetalSurface>
+      </GlassmorphicPanel>
+      </FadeInView>
 
       {/* Payment Methods */}
       <View style={styles.section}>
@@ -132,6 +144,15 @@ export default function WalletScreen() {
         removeClippedSubviews
         maxToRenderPerBatch={10}
         windowSize={5}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.voltage}
+            colors={[colors.voltage]}
+            progressBackgroundColor={colors.background.secondary}
+          />
+        }
       />
     </View>
   );

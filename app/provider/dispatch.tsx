@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,6 +14,8 @@ import { MapPin, Clock, DollarSign, Navigation } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useProviderStore } from '@/stores/providerStore';
 import { useReducedMotion, announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable } from '@/components/animations';
+import { heavyHaptic, errorHaptic } from '@/utils/haptics';
 
 export default function DispatchScreen() {
   const router = useRouter();
@@ -118,25 +120,29 @@ export default function DispatchScreen() {
         {/* Actions */}
         <View style={styles.actions}>
           <Animated.View style={[{ flex: 1 }, pulseAnimStyle]}>
-            <TouchableOpacity
-              onPress={handleAccept}
+            <AnimatedPressable
+              onPress={() => {
+                heavyHaptic();
+                handleAccept();
+              }}
               style={styles.acceptButton}
               accessibilityLabel="Accept towing job for KES 5,000"
-              accessibilityRole="button"
               accessibilityHint="Accepts this job and navigates to pickup location"
             >
               <Text style={styles.acceptText}>Accept</Text>
-            </TouchableOpacity>
+            </AnimatedPressable>
           </Animated.View>
-          <TouchableOpacity
-            onPress={handleDecline}
+          <AnimatedPressable
+            onPress={() => {
+              errorHaptic();
+              handleDecline();
+            }}
             style={styles.declineButton}
             accessibilityLabel="Decline job"
-            accessibilityRole="button"
             accessibilityHint="Declines this job and returns to dashboard"
           >
             <Text style={styles.declineText}>Decline</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
       </Animated.View>
     </View>

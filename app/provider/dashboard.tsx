@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
+import { View, Text, StyleSheet, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MapPin, DollarSign, User, History, Headphones } from 'lucide-react-native';
 import { colors, typography, spacing, shadows } from '@/theme';
@@ -8,6 +8,8 @@ import { TOUCH_TARGET } from '@/utils/accessibility';
 import MapPlaceholder from '@/components/MapPlaceholder';
 import MetalSurface from '@/components/MetalSurface';
 import { OfflineQueueBanner } from '@/components/ui/OfflineExperience';
+import { AnimatedPressable, GlassmorphicPanel } from '@/components/animations';
+import { lightHaptic, mediumHaptic } from '@/utils/haptics';
 
 export default function ProviderDashboardScreen() {
   const router = useRouter();
@@ -57,16 +59,17 @@ export default function ProviderDashboardScreen() {
           <Text style={styles.statusText}>{isAvailable ? 'ONLINE' : 'OFFLINE'}</Text>
         </MetalSurface>
         <View style={styles.topActions}>
-          <TouchableOpacity
-            onPress={() => router.push('/provider/support')}
+          <AnimatedPressable
+            onPress={() => {
+              lightHaptic();
+              router.push('/provider/support');
+            }}
             style={styles.actionButton}
-            hitSlop={TOUCH_TARGET.HIT_SLOP}
             accessibilityLabel="Support"
-            accessibilityRole="button"
             accessibilityHint="Opens support page"
           >
             <Headphones size={20} color={colors.text.primary} />
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
       </View>
 
@@ -75,7 +78,7 @@ export default function ProviderDashboardScreen() {
         <OfflineQueueBanner queuedCount={offlineQueueCount} onPress={() => {}} />
 
         {/* Availability Toggle */}
-        <MetalSurface variant="glass" radius="xxl" style={styles.panel}>
+        <GlassmorphicPanel intensity="medium" radius="xxl" style={styles.panel}>
           <View style={styles.toggleRow}>
             <Text style={styles.toggleLabel}>
               {isAvailable ? 'Accepting Jobs' : 'Go Online'}
@@ -108,44 +111,53 @@ export default function ProviderDashboardScreen() {
               <Text style={styles.statLabel}>Rating</Text>
             </View>
           </View>
-        </MetalSurface>
+        </GlassmorphicPanel>
 
         {/* Bottom Nav */}
         <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem} accessibilityLabel="Dashboard" accessibilityRole="button" accessibilityState={{ selected: true }}>
+          <AnimatedPressable style={styles.navItem} accessibilityLabel="Dashboard" accessibilityState={{ selected: true }} scaleValue={0.9}>
             <MapPin size={20} color={colors.voltage} />
             <Text style={[styles.navText, { color: colors.voltage }]}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/provider/earnings')}
+          </AnimatedPressable>
+          <AnimatedPressable
+            onPress={() => {
+              lightHaptic();
+              router.push('/provider/earnings');
+            }}
             style={styles.navItem}
             accessibilityLabel="Earnings"
-            accessibilityRole="button"
             accessibilityHint="View your earnings"
+            scaleValue={0.9}
           >
             <DollarSign size={20} color={colors.text.tertiary} />
             <Text style={styles.navText}>Earnings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/provider/history')}
+          </AnimatedPressable>
+          <AnimatedPressable
+            onPress={() => {
+              lightHaptic();
+              router.push('/provider/history');
+            }}
             style={styles.navItem}
             accessibilityLabel="History"
-            accessibilityRole="button"
             accessibilityHint="View job history"
+            scaleValue={0.9}
           >
             <History size={20} color={colors.text.tertiary} />
             <Text style={styles.navText}>History</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/provider/profile')}
+          </AnimatedPressable>
+          <AnimatedPressable
+            onPress={() => {
+              lightHaptic();
+              router.push('/provider/profile');
+            }}
             style={styles.navItem}
             accessibilityLabel="Profile"
-            accessibilityRole="button"
             accessibilityHint="View your profile"
+            scaleValue={0.9}
           >
             <User size={20} color={colors.text.tertiary} />
             <Text style={styles.navText}>Profile</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
       </View>
     </View>

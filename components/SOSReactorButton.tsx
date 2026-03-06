@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
 import Animated, {
@@ -11,10 +10,14 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  withSpring,
   Easing,
 } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { colors, shadows, typography, spacing } from '@/theme';
 import { useReducedMotion, TOUCH_TARGET } from '@/utils/accessibility';
+import { heavyHaptic } from '@/utils/haptics';
+import { SPRING_CONFIG } from '@/utils/animations';
 
 interface SOSReactorButtonProps {
   onPress: () => void;
@@ -28,6 +31,12 @@ function SOSReactorButton({
   const prefersReducedMotion = useReducedMotion();
   const pulseScale = useSharedValue(1);
   const glowOpacity = useSharedValue(0.3);
+  const pressScale = useSharedValue(1);
+
+  const handlePress = useCallback(() => {
+    heavyHaptic();
+    onPress();
+  }, [onPress]);
 
   useEffect(() => {
     // Respect prefers-reduced-motion - skip animations if user prefers reduced motion
@@ -56,8 +65,23 @@ function SOSReactorButton({
     );
   }, [pulseScale, glowOpacity, prefersReducedMotion]);
 
+  const tapGesture = Gesture.Tap()
+    .onBegin(() => {
+      if (!prefersReducedMotion) {
+        pressScale.value = withSpring(0.9, SPRING_CONFIG.press);
+      }
+    })
+    .onFinalize(() => {
+      if (!prefersReducedMotion) {
+        pressScale.value = withSpring(1, SPRING_CONFIG.press);
+      }
+    })
+    .onEnd(() => {
+      handlePress();
+    });
+
   const pulseAnimStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale.value }],
+    transform: [{ scale: pulseScale.value * pressScale.value }],
   }));
 
   const glowAnimStyle = useAnimatedStyle(() => ({
@@ -69,26 +93,26 @@ function SOSReactorButton({
       <Animated.View style={[styles.glowRing, glowAnimStyle]}>
         <View style={[styles.glowInner, { width: size + 20, height: size + 20 }]} />
       </Animated.View>
-      <Animated.View style={pulseAnimStyle}>
-        <TouchableOpacity
-          onPress={onPress}
-          activeOpacity={0.7}
-          accessibilityLabel="Emergency SOS - Request immediate help"
-          accessibilityRole="button"
-          accessibilityHint="Double tap to trigger emergency medical dispatch"
-          style={[
-            styles.button,
-            {
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-            },
-          ]}
-        >
-          <View style={[styles.innerGlow, { borderRadius: size / 2 }]} />
-          <Text style={styles.text}>SOS</Text>
-        </TouchableOpacity>
-      </Animated.View>
+      <GestureDetector gesture={tapGesture}>
+        <Animated.View style={pulseAnimStyle}>
+          <View
+            accessibilityLabel="Emergency SOS - Request immediate help"
+            accessibilityRole="button"
+            accessibilityHint="Double tap to trigger emergency medical dispatch"
+            style={[
+              styles.button,
+              {
+                width: size,
+                height: size,
+                borderRadius: size / 2,
+              },
+            ]}
+          >
+            <View style={[styles.innerGlow, { borderRadius: size / 2 }]} />
+            <Text style={styles.text}>SOS</Text>
+          </View>
+        </Animated.View>
+      </GestureDetector>
       <Text style={styles.label}>EMERGENCY</Text>
     </View>
   );

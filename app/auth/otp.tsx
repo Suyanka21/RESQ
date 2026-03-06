@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +12,8 @@ import { ArrowLeft } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
 import { TOUCH_TARGET, announceForAccessibility } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic, successHaptic } from '@/utils/haptics';
 
 const OTP_LENGTH = 6;
 
@@ -71,23 +72,25 @@ export default function OTPScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.back()}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to phone number entry"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Verify Code</Text>
-        <Text style={styles.subtitle}>
-          Enter the 6-digit code sent to +254 {phone}
-        </Text>
+        <FadeInView delay={100}>
+          <Text style={styles.title}>Verify Code</Text>
+        </FadeInView>
+        <FadeInView delay={200}>
+          <Text style={styles.subtitle}>
+            Enter the 6-digit code sent to +254 {phone}
+          </Text>
+        </FadeInView>
 
         {/* OTP Input */}
         <View style={styles.otpRow}>
@@ -116,12 +119,14 @@ export default function OTPScreen() {
         </View>
 
         {/* Verify Button */}
-        <TouchableOpacity
-          onPress={handleVerify}
+        <AnimatedPressable
+          onPress={() => {
+            successHaptic();
+            handleVerify();
+          }}
           disabled={!isComplete}
           style={[styles.verifyButton, !isComplete && styles.verifyButtonDisabled]}
           accessibilityLabel="Verify OTP"
-          accessibilityRole="button"
         >
           <Text
             style={[
@@ -131,21 +136,23 @@ export default function OTPScreen() {
           >
             Verify
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
 
         {/* Resend */}
-        <TouchableOpacity
+        <AnimatedPressable
           disabled={countdown > 0}
-          onPress={() => setCountdown(30)}
+          onPress={() => {
+            mediumHaptic();
+            setCountdown(30);
+          }}
           accessibilityLabel={countdown > 0 ? `Resend code in ${countdown} seconds` : 'Resend code'}
-          accessibilityRole="button"
         >
           <Text style={styles.resendText}>
             {countdown > 0
               ? `Resend code in ${countdown}s`
               : 'Resend Code'}
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
     </KeyboardAvoidingView>
   );

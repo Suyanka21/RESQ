@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   User,
@@ -16,6 +16,8 @@ import MetalSurface from '@/components/MetalSurface';
 import { useAuthStore } from '@/stores/authStore';
 import { ProfileSkeleton } from '@/components/ui/LoadingStates';
 import { GenericError } from '@/components/ui/ErrorStates';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic, errorHaptic, lightHaptic } from '@/utils/haptics';
 
 const MENU_ITEMS = [
   { id: 'vehicles', label: 'My Vehicles', icon: Car, route: '/customer/manage-vehicles' },
@@ -68,46 +70,56 @@ export default function ProfileScreen() {
 
       {/* Menu Items */}
       <View style={styles.menu}>
-        {MENU_ITEMS.map((item) => {
+        {MENU_ITEMS.map((item, index) => {
           const Icon = item.icon;
           return (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => item.route && router.push(item.route as never)}
-              style={styles.menuItem}
-              accessibilityLabel={item.label}
-              accessibilityRole="button"
-            >
-              <MetalSurface variant="extruded" radius="md" style={styles.menuIconBox}>
-                <Icon size={18} color={colors.voltage} />
-              </MetalSurface>
-              <Text style={styles.menuLabel}>{item.label}</Text>
-              <ChevronRight size={18} color={colors.text.tertiary} />
-            </TouchableOpacity>
+            <FadeInView key={item.id} delay={100 + index * 60} duration={300}>
+              <AnimatedPressable
+                onPress={() => {
+                  lightHaptic();
+                  if (item.route) router.push(item.route as never);
+                }}
+                style={styles.menuItem}
+                accessibilityLabel={item.label}
+                scaleValue={0.98}
+              >
+                <MetalSurface variant="extruded" radius="md" style={styles.menuIconBox}>
+                  <Icon size={18} color={colors.voltage} />
+                </MetalSurface>
+                <Text style={styles.menuLabel}>{item.label}</Text>
+                <ChevronRight size={18} color={colors.text.tertiary} />
+              </AnimatedPressable>
+            </FadeInView>
           );
         })}
       </View>
 
       {/* Provider Mode */}
-      <TouchableOpacity
-        onPress={() => router.push('/provider/login')}
-        style={styles.providerButton}
-        accessibilityLabel="Switch to provider mode"
-        accessibilityRole="button"
-      >
-        <Text style={styles.providerText}>Switch to Provider Mode</Text>
-      </TouchableOpacity>
+      <FadeInView delay={500}>
+        <AnimatedPressable
+          onPress={() => {
+            mediumHaptic();
+            router.push('/provider/login');
+          }}
+          style={styles.providerButton}
+          accessibilityLabel="Switch to provider mode"
+        >
+          <Text style={styles.providerText}>Switch to Provider Mode</Text>
+        </AnimatedPressable>
+      </FadeInView>
 
       {/* Logout */}
-      <TouchableOpacity
-        onPress={handleLogout}
+      <AnimatedPressable
+        onPress={() => {
+          errorHaptic();
+          handleLogout();
+        }}
         style={styles.logoutButton}
         accessibilityLabel="Log out"
-        accessibilityRole="button"
       >
         <LogOut size={18} color={colors.status.error} />
         <Text style={styles.logoutText}>Log Out</Text>
-      </TouchableOpacity>
+      </AnimatedPressable>
     </ScrollView>
   );
 }

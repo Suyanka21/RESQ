@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +12,8 @@ import { ArrowLeft, ShieldCheck } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import MetalSurface from '@/components/MetalSurface';
 import { TOUCH_TARGET } from '@/utils/accessibility';
+import { AnimatedPressable, FadeInView } from '@/components/animations';
+import { mediumHaptic } from '@/utils/haptics';
 
 export default function ProviderLoginScreen() {
   const router = useRouter();
@@ -26,29 +27,33 @@ export default function ProviderLoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.header}>
-        <TouchableOpacity
+        <AnimatedPressable
           onPress={() => router.back()}
           style={styles.backButton}
-          hitSlop={TOUCH_TARGET.HIT_SLOP}
           accessibilityLabel="Go back"
-          accessibilityRole="button"
           accessibilityHint="Returns to previous screen"
         >
           <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       <View style={styles.content}>
-        <View
-          style={styles.iconBox}
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-        >
-          <ShieldCheck size={32} color={colors.voltage} />
-        </View>
+        <FadeInView delay={100}>
+          <View
+            style={styles.iconBox}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <ShieldCheck size={32} color={colors.voltage} />
+          </View>
+        </FadeInView>
 
-        <Text style={styles.title} accessibilityRole="header">Provider Login</Text>
-        <Text style={styles.subtitle}>Sign in to your provider account</Text>
+        <FadeInView delay={200}>
+          <Text style={styles.title} accessibilityRole="header">Provider Login</Text>
+        </FadeInView>
+        <FadeInView delay={300}>
+          <Text style={styles.subtitle}>Sign in to your provider account</Text>
+        </FadeInView>
 
         {/* Form label separated from placeholder */}
         <Text style={styles.inputLabel} accessibilityRole="text">
@@ -71,19 +76,21 @@ export default function ProviderLoginScreen() {
           </View>
         </MetalSurface>
 
-        <TouchableOpacity
-          onPress={() => router.push('/provider/otp')}
+        <AnimatedPressable
+          onPress={() => {
+            mediumHaptic();
+            router.push('/provider/otp');
+          }}
           disabled={!isValid}
           style={[styles.loginButton, !isValid && styles.loginButtonDisabled]}
           accessibilityLabel="Continue to OTP verification"
-          accessibilityRole="button"
           accessibilityHint="Sends a verification code to your phone number"
           accessibilityState={{ disabled: !isValid }}
         >
           <Text style={[styles.loginText, !isValid && styles.loginTextDisabled]}>
             Continue
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
 
         <Text style={styles.biometricText}>
           Biometric login available after first sign-in
