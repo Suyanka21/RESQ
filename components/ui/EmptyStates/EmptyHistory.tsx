@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Clock } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { AnimatedPressable, FadeInView } from '@/components/animations';
 import { mediumHaptic } from '@/utils/haptics';
@@ -16,11 +17,11 @@ export default function EmptyHistory({ onRequestHelp }: EmptyHistoryProps) {
         <EmptyHistoryIllustration size={120} />
       </FadeInView>
       <FadeInView delay={200}>
-        <Text style={styles.title}>No Trips Yet</Text>
+        <Text style={styles.title}>No Service History Yet</Text>
       </FadeInView>
       <FadeInView delay={300}>
         <Text style={styles.message}>
-          Your service history will appear here. Request roadside help to get started!
+          Your completed service requests will appear here. Request your first service to get started!
         </Text>
       </FadeInView>
       {onRequestHelp && (
@@ -31,12 +32,19 @@ export default function EmptyHistory({ onRequestHelp }: EmptyHistoryProps) {
               onRequestHelp();
             }}
             style={styles.ctaButton}
-            accessibilityLabel="Request roadside help"
+            accessibilityLabel="Request your first service"
+            accessibilityHint="Opens the service selection screen"
           >
-            <Text style={styles.ctaText}>Request Help</Text>
+            <Text style={styles.ctaText}>Request Your First Service</Text>
           </AnimatedPressable>
         </FadeInView>
       )}
+      <FadeInView delay={500}>
+        <View style={styles.hintContainer}>
+          <Clock size={14} color={colors.text.tertiary} />
+          <Text style={styles.hintText}>Takes less than 30 seconds</Text>
+        </View>
+      </FadeInView>
     </View>
   );
 }
@@ -75,5 +83,15 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeight.bold,
     textTransform: 'uppercase',
     letterSpacing: 2,
+  },
+  hintContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.lg,
+  },
+  hintText: {
+    color: colors.text.tertiary,
+    fontSize: typography.fontSize.xs,
   },
 });

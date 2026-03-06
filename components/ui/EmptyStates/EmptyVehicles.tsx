@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Car } from 'lucide-react-native';
+import { Car, Zap } from 'lucide-react-native';
 import { colors, typography, spacing, borderRadius, shadows } from '@/theme';
 import { AnimatedPressable, FadeInView } from '@/components/animations';
 import { mediumHaptic } from '@/utils/haptics';
@@ -18,11 +18,11 @@ export default function EmptyVehicles({ onAddVehicle }: EmptyVehiclesProps) {
         </View>
       </FadeInView>
       <FadeInView delay={200}>
-        <Text style={styles.title}>No Vehicles</Text>
+        <Text style={styles.title}>No Saved Vehicles</Text>
       </FadeInView>
       <FadeInView delay={300}>
         <Text style={styles.message}>
-          Add your vehicle for faster service. Vehicle details help providers prepare before arriving.
+          Add your vehicle for faster service requests. Providers will know exactly what to bring before arriving.
         </Text>
       </FadeInView>
       {onAddVehicle && (
@@ -33,12 +33,19 @@ export default function EmptyVehicles({ onAddVehicle }: EmptyVehiclesProps) {
               onAddVehicle();
             }}
             style={styles.ctaButton}
-            accessibilityLabel="Add a vehicle"
+            accessibilityLabel="Add your first vehicle"
+            accessibilityHint="Opens the add vehicle form"
           >
-            <Text style={styles.ctaText}>Add Vehicle</Text>
+            <Text style={styles.ctaText}>Add Vehicle for Faster Requests</Text>
           </AnimatedPressable>
         </FadeInView>
       )}
+      <FadeInView delay={500}>
+        <View style={styles.hintContainer}>
+          <Zap size={14} color={colors.voltage} />
+          <Text style={styles.hintText}>Speeds up future service requests</Text>
+        </View>
+      </FadeInView>
     </View>
   );
 }
@@ -86,5 +93,15 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeight.bold,
     textTransform: 'uppercase',
     letterSpacing: 2,
+  },
+  hintContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.lg,
+  },
+  hintText: {
+    color: colors.text.tertiary,
+    fontSize: typography.fontSize.xs,
   },
 });
